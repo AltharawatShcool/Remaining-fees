@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام متابعة الرسوم الدراسية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        window.firebaseModules = {
+            initializeApp,
+            getFirestore,
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            updateDoc,
+            deleteDoc,
+            query,
+            orderBy
+        };
+    </script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#059669'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .school-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #5D5CDE, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .loading {
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid #3498db;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .firebase-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .firebase-connected {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .firebase-disconnected {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Firebase Status Indicator -->
+    <div id="firebaseStatus" class="firebase-status firebase-disconnected">
+        Firebase غير متصل
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-md">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-reverse space-x-4">
+                    <div class="school-logo">ث.و</div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800 dark:text-white">مدرسه الثروات الوطنيه الخاصه</h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">نظام متابعة الرسوم الدراسية</p>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    العام الدراسي 2024-2025
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Splash Screen -->
+        <div id="splashScreen" class="text-center py-16 fade-in">
+            <div class="school-logo mx-auto mb-6" style="width: 120px; height: 120px; font-size: 36px;">ث.و</div>
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-4">نظام متابعة الرسوم الدراسية</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">إدارة مالية احترافية للمؤسسات التعليمية مع Firebase</p>
+            <button onclick="showMainScreen()" class="bg-primary hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                الدخول إلى النظام
+            </button>
+        </div>
+
+        <!-- Main Screen -->
+        <div id="mainScreen" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <button onclick="showAddStudentScreen()" class="bg-primary hover:bg-purple-700 text-white p-6 rounded-lg text-center transition duration-300">
+                    <div class="text-3xl mb-3">👨‍🎓</div>
+                    <h3 class="text-lg font-bold mb-2">إدخال بيانات الطالب</h3>
+                    <p class="text-sm opacity-90">إضافة طالب جديد يدوياً</p>
+                </button>
+                
+                <button onclick="showImportScreen()" class="bg-secondary hover:bg-green-700 text-white p-6 rounded-lg text-center transition duration-300">
+                    <div class="text-3xl mb-3">📊</div>
+                    <h3 class="text-lg font-bold mb-2">استيراد ملف Excel</h3>
+                    <p class="text-sm opacity-90">رفع ملف Excel بالبيانات</p>
+                </button>
+                
+                <button onclick="showStudentsScreen()" class="bg-purple-600 hover:bg-purple-700 text-white p-6 rounded-lg text-center transition duration-300">
+                    <div class="text-3xl mb-3">📋</div>
+                    <h3 class="text-lg font-bold mb-2">عرض جميع الطلاب</h3>
+                    <p class="text-sm opacity-90">إدارة بيانات الطلاب</p>
+                </button>
+                
+                <button onclick="showSearchScreen()" class="bg-orange-600 hover:bg-orange-700 text-white p-6 rounded-lg text-center transition duration-300">
+                    <div class="text-3xl mb-3">🔍</div>
+                    <h3 class="text-lg font-bold mb-2">البحث عن طالب</h3>
+                    <p class="text-sm opacity-90">البحث السريع</p>
+                </button>
+                
+                <button onclick="showReportsScreen()" class="bg-red-600 hover:bg-red-700 text-white p-6 rounded-lg text-center transition duration-300">
+                    <div class="text-3xl mb-3">📈</div>
+                    <h3 class="text-lg font-bold mb-2">التقارير والإحصائيات</h3>
+                    <p class="text-sm opacity-90">تقارير مالية شاملة</p>
+                </button>
+                
+                <button onclick="showSettingsScreen()" class="bg-gray-600 hover:bg-gray-700 text-white p-6 rounded-lg text-center transition duration-300">
+                    <div class="text-3xl mb-3">⚙️</div>
+                    <h3 class="text-lg font-bold mb-2">إعدادات التطبيق</h3>
+                    <p class="text-sm opacity-90">إعدادات النظام والصيانة</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Add Student Screen -->
+        <div id="addStudentScreen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">إدخال بيانات الطالب</h2>
+                    <button onclick="showMainScreen()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">عودة</button>
+                </div>
+                
+                <form id="studentForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">العام الدراسي</label>
+                        <input type="text" id="academicYear" value="2024-2025" class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">رقم الطالب</label>
+                        <input type="text" id="studentId" required class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">اسم الطالب</label>
+                        <input type="text" id="studentName" required class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">الصف</label>
+                        <select id="grade" required class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">اختر الصف</option>
+                            <option value="KG1">KG1</option>
+                            <option value="KG2">KG2</option>
+                            <option value="الصف الأول">الصف الأول</option>
+                            <option value="الصف الثاني">الصف الثاني</option>
+                            <option value="الصف الثالث">الصف الثالث</option>
+                            <option value="الصف الرابع">الصف الرابع</option>
+                            <option value="الصف الخامس">الصف الخامس</option>
+                            <option value="الصف السادس">الصف السادس</option>
+                            <option value="الصف السابع">الصف السابع</option>
+                            <option value="الصف الثامن">الصف الثامن</option>
+                            <option value="الصف التاسع">الصف التاسع</option>
+                            <option value="الصف العاشر">الصف العاشر</option>
+                            <option value="الصف الحادي عشر">الصف الحادي عشر</option>
+                            <option value="الصف الثاني عشر">الصف الثاني عشر</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">النقل</label>
+                        <select id="transport" class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="بدون باص">بدون باص</option>
+                            <option value="باص">باص</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">الرسوم الدراسية الكلية</label>
+                        <input type="number" id="totalFees" required class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">الرسوم المسددة</label>
+                        <input type="number" id="paidFees" required class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">المتبقي</label>
+                        <input type="number" id="remainingFees" readonly class="w-full px-3 py-2 text-base border rounded-lg bg-gray-100 dark:bg-gray-600 dark:border-gray-600 dark:text-white">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">الملاحظات</label>
+                        <textarea id="notes" rows="3" class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                    </div>
+                </form>
+                
+                <div class="flex space-x-reverse space-x-4 mt-6">
+                    <button onclick="calculateRemaining()" class="bg-secondary hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition duration-300">حساب المتبقي</button>
+                    <button onclick="saveStudent()" class="bg-primary hover:bg-purple-700 text-white font-bold py-2 px-6 rounded transition duration-300" id="saveStudentBtn">
+                        حفظ البيانات
+                    </button>
+                    <button onclick="clearForm()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded transition duration-300">مسح الحقول</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Screen -->
+        <div id="importScreen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">استيراد ملف Excel</h2>
+                    <button onclick="showMainScreen()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">عودة</button>
+                </div>
+                
+                <div class="text-center py-8">
+                    <div class="text-6xl mb-4">📊</div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">رفع ملف Excel</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6">يجب أن يحتوي الملف على الأعمدة التالية:<br>
+                    العام الدراسي - رقم الطالب - اسم الطالب - الصف - النقل - الرسوم الكلية - المسدد - الملاحظات</p>
+                    
+                    <input type="file" id="excelFile" accept=".xlsx,.xls" class="hidden">
+                    <button onclick="document.getElementById('excelFile').click()" class="bg-secondary hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                        اختيار ملف Excel
+                    </button>
+                    
+                    <div id="importStatus" class="mt-4 text-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Screen -->
+        <div id="studentsScreen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">جميع الطلاب</h2>
+                    <div class="flex space-x-reverse space-x-2">
+                        <button onclick="exportToExcel()" class="bg-secondary hover:bg-green-700 text-white px-4 py-2 rounded">تصدير Excel</button>
+                        <button onclick="loadStudentsFromFirebase()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" id="refreshBtn">
+                            تحديث البيانات
+                        </button>
+                        <button onclick="showMainScreen()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">عودة</button>
+                    </div>
+                </div>
+                
+                <div class="mb-4 flex flex-wrap gap-4">
+                    <input type="text" id="searchInput" placeholder="البحث بالاسم أو رقم الطالب..." class="flex-1 min-w-64 px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <select id="yearFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">جميع الأعوام</option>
+                    </select>
+                    <select id="gradeFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">جميع الصفوف</option>
+                    </select>
+                    <select id="paymentFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">جميع الحالات</option>
+                        <option value="مسدد">مسدد بالكامل</option>
+                        <option value="متبقي">يوجد متبقي</option>
+                    </select>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">العام الدراسي</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">رقم الطالب</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الاسم</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الصف</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">النقل</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الرسوم الكلية</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">المسدد</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">المتبقي</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="studentsStats" class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-blue-700 dark:text-blue-300">إجمالي الطلاب</h4>
+                        <p id="totalStudents" class="text-2xl font-bold text-blue-900 dark:text-blue-100">0</p>
+                    </div>
+                    <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-green-700 dark:text-green-300">إجمالي الرسوم</h4>
+                        <p id="totalFeesStat" class="text-2xl font-bold text-green-900 dark:text-green-100">0</p>
+                    </div>
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-yellow-700 dark:text-yellow-300">المسدد</h4>
+                        <p id="totalPaidStat" class="text-2xl font-bold text-yellow-900 dark:text-yellow-100">0</p>
+                    </div>
+                    <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-red-700 dark:text-red-300">المتبقي</h4>
+                        <p id="totalRemainingStat" class="text-2xl font-bold text-red-900 dark:text-red-100">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Screen -->
+        <div id="searchScreen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">البحث عن طالب</h2>
+                    <button onclick="showMainScreen()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">عودة</button>
+                </div>
+                
+                <div class="text-center py-8">
+                    <div class="text-6xl mb-4">🔍</div>
+                    <input type="text" id="quickSearch" placeholder="أدخل اسم الطالب أو رقمه..." class="w-full max-w-md px-4 py-3 text-base border-2 rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <div id="searchResults" class="mt-6"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Screen -->
+        <div id="reportsScreen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">التقارير والإحصائيات</h2>
+                    <div class="flex space-x-reverse space-x-2">
+                        <button onclick="printReport()" class="bg-secondary hover:bg-green-700 text-white px-4 py-2 rounded">طباعة التقرير</button>
+                        <button onclick="showMainScreen()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">عودة</button>
+                    </div>
+                </div>
+                
+                <div id="reportContent" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">إجمالي الرسوم الدراسية</h3>
+                            <p id="reportTotalFees" class="text-3xl font-bold">0 د.إ</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">إجمالي المسدد</h3>
+                            <p id="reportTotalPaid" class="text-3xl font-bold">0 د.إ</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">إجمالي المتبقي</h3>
+                            <p id="reportTotalRemaining" class="text-3xl font-bold">0 د.إ</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">نسبة التحصيل</h3>
+                            <p id="reportCollectionRate" class="text-3xl font-bold">0%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">إحصائيات حسب الصف</h3>
+                        <div id="gradeStats" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settingsScreen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">إعدادات التطبيق</h2>
+                    <button onclick="showMainScreen()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">عودة</button>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="border-b dark:border-gray-700 pb-6">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">إعدادات Firebase</h3>
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
+                            <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-2">إعدادات Firebase الحالية:</h4>
+                            <div class="text-sm text-blue-700 dark:text-blue-400 space-y-1">
+                                <p><strong>Project ID:</strong> <span id="currentProjectId">school-fees-system</span></p>
+                                <p><strong>Auth Domain:</strong> <span id="currentAuthDomain">school-fees-system.firebaseapp.com</span></p>
+                                <p><strong>حالة الاتصال:</strong> <span id="connectionStatus">جاري التحقق...</span></p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-4">
+                            <button onclick="testFirebaseConnection()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded" id="testFirebaseBtn">
+                                اختبار الاتصال
+                            </button>
+                            <div id="firebaseConnectionStatus" class="flex items-center"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-b dark:border-gray-700 pb-6">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">إدارة البيانات</h3>
+                        <div class="flex flex-wrap gap-4">
+                            <button onclick="backupDataFromFirebase()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" id="backupBtn">
+                                نسخ احتياطي من Firebase
+                            </button>
+                            <button onclick="syncLocalToFirebase()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded" id="syncBtn">
+                                مزامنة البيانات المحلية مع Firebase
+                            </button>
+                            <button onclick="showConfirmDialog('هل أنت متأكد من حذف جميع البيانات من Firebase؟ هذا الإجراء لا يمكن التراجع عنه.', clearAllFirebaseData)" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                                مسح جميع البيانات من Firebase
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">معلومات التطبيق</h3>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-2">
+                            <p class="text-gray-700 dark:text-gray-300"><strong>اسم التطبيق:</strong> نظام متابعة الرسوم الدراسية</p>
+                            <p class="text-gray-700 dark:text-gray-300"><strong>الإصدار:</strong> 2.0 مع Firebase</p>
+                            <p class="text-gray-700 dark:text-gray-300"><strong>قاعدة البيانات:</strong> <span id="dbStatus">Firebase Firestore</span></p>
+                            <p class="text-gray-700 dark:text-gray-300"><strong>الصفوف المدعومة:</strong> من KG1 إلى الصف الثاني عشر</p>
+                            <p class="text-gray-700 dark:text-gray-300"><strong>المطور:</strong> المهندس حسين نقد</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 shadow-md mt-16">
+        <div class="container mx-auto px-4 py-6 text-center">
+            <p class="text-gray-600 dark:text-gray-300">تم التطوير من قبل <strong>المهندس حسين نقد</strong></p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">© 2025 جميع الحقوق محفوظة للمدرسه | نسخة Firebase 2.0</p>
+        </div>
+    </footer>
+
+    <!-- Custom Modal -->
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+            <p id="modalMessage" class="text-gray-700 dark:text-gray-300 mb-4"></p>
+            <div class="flex justify-end space-x-reverse space-x-3">
+                <button id="modalCancel" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">إلغاء</button>
+                <button id="modalConfirm" class="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Firebase variables
+        let firebaseApp = null;
+        let db = null;
+        let students = [];
+
+        // Firebase Configuration - إعدادات Firebase مدمجة في الكود
+        // ملاحظة: يجب استبدال هذه الإعدادات بإعدادات مشروعك الفعلي من Firebase Console
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3MOE5YPH3cljdhBt6YnGmn5REo_YfBio",
+            authDomain: "foozapp-cf41e.firebaseapp.com",
+            projectId: "foozapp-cf41e",
+            storageBucket: "foozapp-cf41e.firebasestorage.app",
+            messagingSenderId: "941235984421",
+            appId: "1:941235984421:web:43d8c80847dc83266bc7cc",
+            measurementId: "G-X2C2T9V3PP"
+            
+        };
+
+        // Initialize Firebase
+        async function initializeFirebase() {
+            try {
+                const { initializeApp, getFirestore } = window.firebaseModules;
+                firebaseApp = initializeApp(firebaseConfig);
+                db = getFirestore(firebaseApp);
+                
+                updateFirebaseStatus(true);
+                updateConnectionInfo();
+                return true;
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                updateFirebaseStatus(false);
+                updateConnectionInfo('خطأ في الاتصال');
+                return false;
+            }
+        }
+
+        // Update connection info in settings
+        function updateConnectionInfo(status = 'متصل') {
+            document.getElementById('currentProjectId').textContent = firebaseConfig.projectId;
+            document.getElementById('currentAuthDomain').textContent = firebaseConfig.authDomain;
+            document.getElementById('connectionStatus').textContent = status;
+        }
+
+        // Get Firebase config
+        function getFirebaseConfig() {
+            return firebaseConfig;
+        }
+
+        // Update Firebase status indicator
+        function updateFirebaseStatus(connected) {
+            const statusEl = document.getElementById('firebaseStatus');
+            if (connected) {
+                statusEl.className = 'firebase-status firebase-connected';
+                statusEl.textContent = 'Firebase متصل';
+            } else {
+                statusEl.className = 'firebase-status firebase-disconnected';
+                statusEl.textContent = 'Firebase غير متصل';
+            }
+        }
+
+        // Test Firebase connection
+        async function testFirebaseConnection() {
+            const btn = document.getElementById('testFirebaseBtn');
+            const status = document.getElementById('firebaseConnectionStatus');
+            
+            btn.innerHTML = 'جاري الاختبار... <div class="loading"></div>';
+            btn.disabled = true;
+
+            try {
+                if (!db) {
+                    const success = await initializeFirebase();
+                    if (!success) throw new Error('فشل في تهيئة Firebase');
+                }
+
+                const { collection, getDocs } = window.firebaseModules;
+                const querySnapshot = await getDocs(collection(db, 'students'));
+                
+                status.innerHTML = '<span class="text-green-600 font-bold">✓ الاتصال ناجح</span>';
+                updateConnectionInfo('متصل بنجاح');
+                showAlert('تم الاتصال بـ Firebase بنجاح');
+            } catch (error) {
+                console.error('Firebase connection test failed:', error);
+                status.innerHTML = '<span class="text-red-600 font-bold">✗ فشل الاتصال</span>';
+                updateConnectionInfo('فشل في الاتصال');
+                showAlert('فشل في الاتصال بـ Firebase: ' + error.message);
+            } finally {
+                btn.innerHTML = 'اختبار الاتصال';
+                btn.disabled = false;
+            }
+        }
+
+        // Load students from Firebase
+        async function loadStudentsFromFirebase() {
+            if (!db) {
+                showAlert('Firebase غير متصل');
+                return;
+            }
+
+            const btn = document.getElementById('refreshBtn');
+            if (btn) {
+                btn.innerHTML = 'جاري التحديث... <div class="loading"></div>';
+                btn.disabled = true;
+            }
+
+            try {
+                const { collection, getDocs, orderBy, query } = window.firebaseModules;
+                const q = query(collection(db, 'students'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                students = [];
+                querySnapshot.forEach((doc) => {
+                    students.push({
+                        firebaseId: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Also load from localStorage for backup
+                const localStudents = JSON.parse(localStorage.getItem('studentsData')) || [];
+                
+                // Merge with local data (avoid duplicates)
+                localStudents.forEach(localStudent => {
+                    if (!students.some(s => s.studentId === localStudent.studentId && s.academicYear === localStudent.academicYear)) {
+                        students.push(localStudent);
+                    }
+                });
+
+                showAlert('تم تحديث البيانات من Firebase بنجاح');
+            } catch (error) {
+                console.error('Error loading students from Firebase:', error);
+                // Fallback to localStorage
+                students = JSON.parse(localStorage.getItem('studentsData')) || [];
+                showAlert('تم تحميل البيانات المحلية (فشل تحميل البيانات من Firebase)');
+            } finally {
+                if (btn) {
+                    btn.innerHTML = 'تحديث البيانات';
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        // Save student to Firebase
+        async function saveStudentToFirebase(studentData) {
+            if (!db) {
+                throw new Error('Firebase غير متصل');
+            }
+
+            const { collection, addDoc } = window.firebaseModules;
+            const docRef = await addDoc(collection(db, 'students'), studentData);
+            return docRef.id;
+        }
+
+        // Update student in Firebase
+        async function updateStudentInFirebase(firebaseId, studentData) {
+            if (!db) {
+                throw new Error('Firebase غير متصل');
+            }
+
+            const { doc, updateDoc } = window.firebaseModules;
+            await updateDoc(doc(db, 'students', firebaseId), studentData);
+        }
+
+        // Delete student from Firebase
+        async function deleteStudentFromFirebase(firebaseId) {
+            if (!db) {
+                throw new Error('Firebase غير متصل');
+            }
+
+            const { doc, deleteDoc } = window.firebaseModules;
+            await deleteDoc(doc(db, 'students', firebaseId));
+        }
+
+        // Show specific screen
+        function showScreen(screenId) {
+            const screens = ['splashScreen', 'mainScreen', 'addStudentScreen', 'importScreen', 'studentsScreen', 'searchScreen', 'reportsScreen', 'settingsScreen'];
+            screens.forEach(screen => {
+                document.getElementById(screen).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+            document.getElementById(screenId).classList.add('fade-in');
+        }
+
+        function showMainScreen() { showScreen('mainScreen'); }
+        function showAddStudentScreen() { showScreen('addStudentScreen'); }
+        function showImportScreen() { 
+            showScreen('importScreen'); 
+            setupFileImport();
+        }
+        function showStudentsScreen() { 
+            showScreen('studentsScreen'); 
+            loadStudentsTable();
+        }
+        function showSearchScreen() { 
+            showScreen('searchScreen'); 
+            setupQuickSearch();
+        }
+        function showReportsScreen() { 
+            showScreen('reportsScreen'); 
+            generateReports();
+        }
+        function showSettingsScreen() { showScreen('settingsScreen'); }
+
+        // Calculate remaining fees
+        function calculateRemaining() {
+            const totalFees = parseFloat(document.getElementById('totalFees').value) || 0;
+            const paidFees = parseFloat(document.getElementById('paidFees').value) || 0;
+            const remaining = totalFees - paidFees;
+            document.getElementById('remainingFees').value = remaining;
+        }
+
+        // Save student
+        async function saveStudent() {
+            const btn = document.getElementById('saveStudentBtn');
+            btn.innerHTML = 'جاري الحفظ... <div class="loading"></div>';
+            btn.disabled = true;
+
+            try {
+                const studentData = {
+                    academicYear: document.getElementById('academicYear').value,
+                    studentId: document.getElementById('studentId').value,
+                    name: document.getElementById('studentName').value,
+                    grade: document.getElementById('grade').value,
+                    transport: document.getElementById('transport').value,
+                    totalFees: parseFloat(document.getElementById('totalFees').value) || 0,
+                    paidFees: parseFloat(document.getElementById('paidFees').value) || 0,
+                    remainingFees: parseFloat(document.getElementById('remainingFees').value) || 0,
+                    notes: document.getElementById('notes').value,
+                    createdAt: new Date().toISOString()
+                };
+
+                if (!studentData.studentId || !studentData.name || !studentData.grade) {
+                    throw new Error('يرجى ملء جميع الحقول المطلوبة');
+                }
+
+                // Check if student ID already exists
+                if (students.some(s => s.studentId === studentData.studentId && s.academicYear === studentData.academicYear)) {
+                    throw new Error('رقم الطالب موجود بالفعل في هذا العام الدراسي');
+                }
+
+                // Save to Firebase first
+                let firebaseId = null;
+                try {
+                    firebaseId = await saveStudentToFirebase(studentData);
+                    studentData.firebaseId = firebaseId;
+                } catch (firebaseError) {
+                    console.warn('Failed to save to Firebase, saving locally:', firebaseError);
+                }
+
+                // Save locally as backup
+                studentData.id = Date.now();
+                students.push(studentData);
+                localStorage.setItem('studentsData', JSON.stringify(students));
+
+                showAlert('تم حفظ بيانات الطالب بنجاح');
+                clearForm();
+            } catch (error) {
+                showAlert('خطأ: ' + error.message);
+            } finally {
+                btn.innerHTML = 'حفظ البيانات';
+                btn.disabled = false;
+            }
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('studentForm').reset();
+            document.getElementById('academicYear').value = '2024-2025';
+            document.getElementById('remainingFees').value = '';
+        }
+
+        // Load students table
+        function loadStudentsTable() {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = '';
+
+            students.forEach(student => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.academicYear || '2024-2025'}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.studentId}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.name}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.grade}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.transport}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.totalFees} د.إ</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.paidFees} د.إ</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm ${student.remainingFees > 0 ? 'text-red-600' : 'text-green-600'}">${student.remainingFees} د.إ</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="editStudent('${student.firebaseId || student.id}')" class="text-blue-600 hover:text-blue-900 ml-2">تعديل</button>
+                        <button onclick="deleteStudent('${student.firebaseId || student.id}')" class="text-red-600 hover:text-red-900">حذف</button>
+                    </td>
+                `;
+            });
+
+            // Update filters
+            updateFilters();
+            // Update statistics
+            updateStudentsStats();
+            setupTableFilters();
+        }
+
+        // Update filters (years, grades)
+        function updateFilters() {
+            // Update year filter
+            const yearFilter = document.getElementById('yearFilter');
+            const years = [...new Set(students.map(s => s.academicYear).filter(y => y))];
+            yearFilter.innerHTML = '<option value="">جميع الأعوام</option>';
+            years.forEach(year => {
+                yearFilter.innerHTML += `<option value="${year}">${year}</option>`;
+            });
+
+            // Update grade filter
+            const gradeFilter = document.getElementById('gradeFilter');
+            const grades = [...new Set(students.map(s => s.grade))];
+            gradeFilter.innerHTML = '<option value="">جميع الصفوف</option>';
+            grades.forEach(grade => {
+                gradeFilter.innerHTML += `<option value="${grade}">${grade}</option>`;
+            });
+        }
+
+        // Update students statistics
+        function updateStudentsStats() {
+            const totalStudents = students.length;
+            const totalFees = students.reduce((sum, s) => sum + s.totalFees, 0);
+            const totalPaid = students.reduce((sum, s) => sum + s.paidFees, 0);
+            const totalRemaining = students.reduce((sum, s) => sum + s.remainingFees, 0);
+
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('totalFeesStat').textContent = `${totalFees.toLocaleString()} د.إ`;
+            document.getElementById('totalPaidStat').textContent = `${totalPaid.toLocaleString()} د.إ`;
+            document.getElementById('totalRemainingStat').textContent = `${totalRemaining.toLocaleString()} د.إ`;
+        }
+
+        // Setup table filters
+        function setupTableFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const yearFilter = document.getElementById('yearFilter');
+            const gradeFilter = document.getElementById('gradeFilter');
+            const paymentFilter = document.getElementById('paymentFilter');
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedYear = yearFilter.value;
+                const selectedGrade = gradeFilter.value;
+                const selectedPayment = paymentFilter.value;
+
+                const rows = document.getElementById('studentsTableBody').getElementsByTagName('tr');
+                
+                Array.from(rows).forEach(row => {
+                    const year = row.cells[0].textContent;
+                    const studentId = row.cells[1].textContent.toLowerCase();
+                    const studentName = row.cells[2].textContent.toLowerCase();
+                    const grade = row.cells[3].textContent;
+                    const remaining = parseFloat(row.cells[7].textContent);
+
+                    const matchesSearch = studentId.includes(searchTerm) || studentName.includes(searchTerm);
+                    const matchesYear = !selectedYear || year === selectedYear;
+                    const matchesGrade = !selectedGrade || grade === selectedGrade;
+                    const matchesPayment = !selectedPayment || 
+                        (selectedPayment === 'مسدد' && remaining === 0) ||
+                        (selectedPayment === 'متبقي' && remaining > 0);
+
+                    if (matchesSearch && matchesYear && matchesGrade && matchesPayment) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', filterTable);
+            yearFilter.addEventListener('change', filterTable);
+            gradeFilter.addEventListener('change', filterTable);
+            paymentFilter.addEventListener('change', filterTable);
+        }
+
+        // Delete student
+        async function deleteStudent(id) {
+            showConfirmDialog('هل أنت متأكد من حذف بيانات هذا الطالب؟', async () => {
+                try {
+                    const student = students.find(s => (s.firebaseId || s.id).toString() === id.toString());
+                    
+                    if (student && student.firebaseId) {
+                        await deleteStudentFromFirebase(student.firebaseId);
+                    }
+
+                    students = students.filter(s => (s.firebaseId || s.id).toString() !== id.toString());
+                    localStorage.setItem('studentsData', JSON.stringify(students));
+                    loadStudentsTable();
+                    showAlert('تم حذف بيانات الطالب بنجاح');
+                } catch (error) {
+                    showAlert('خطأ في حذف البيانات: ' + error.message);
+                }
+            });
+        }
+
+        // Edit student
+        function editStudent(id) {
+            const student = students.find(s => (s.firebaseId || s.id).toString() === id.toString());
+            if (!student) return;
+
+            // Fill form with student data
+            document.getElementById('academicYear').value = student.academicYear || '2024-2025';
+            document.getElementById('studentId').value = student.studentId;
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('grade').value = student.grade;
+            document.getElementById('transport').value = student.transport;
+            document.getElementById('totalFees').value = student.totalFees;
+            document.getElementById('paidFees').value = student.paidFees;
+            document.getElementById('remainingFees').value = student.remainingFees;
+            document.getElementById('notes').value = student.notes;
+
+            // Remove student and show add screen
+            students = students.filter(s => (s.firebaseId || s.id).toString() !== id.toString());
+            localStorage.setItem('studentsData', JSON.stringify(students));
+            showAddStudentScreen();
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            if (students.length === 0) {
+                showAlert('لا توجد بيانات للتصدير');
+                return;
+            }
+
+            try {
+                // تحضير البيانات للتصدير
+                const exportData = students.map(s => ({
+                    'العام الدراسي': s.academicYear || '2024-2025',
+                    'رقم الطالب': s.studentId || '',
+                    'اسم الطالب': s.name || '',
+                    'الصف': s.grade || '',
+                    'النقل': s.transport || '',
+                    'الرسوم الكلية (د.إ)': s.totalFees || 0,
+                    'المسدد (د.إ)': s.paidFees || 0,
+                    'المتبقي (د.إ)': s.remainingFees || 0,
+                    'الملاحظات': s.notes || '',
+                    'تاريخ الإدخال': s.createdAt ? new Date(s.createdAt).toLocaleDateString('ar-AE') : ''
+                }));
+
+                // إنشاء ورقة العمل
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                
+                // تحسين عرض الأعمدة
+                const columnWidths = [
+                    { wch: 15 }, // العام الدراسي
+                    { wch: 12 }, // رقم الطالب
+                    { wch: 25 }, // اسم الطالب
+                    { wch: 15 }, // الصف
+                    { wch: 10 }, // النقل
+                    { wch: 15 }, // الرسوم الكلية
+                    { wch: 15 }, // المسدد
+                    { wch: 15 }, // المتبقي
+                    { wch: 30 }, // الملاحظات
+                    { wch: 15 }  // تاريخ الإدخال
+                ];
+                worksheet['!cols'] = columnWidths;
+
+                // إنشاء كتاب العمل
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Students Data');
+
+                // تحضير اسم الملف
+                const currentDate = new Date();
+                const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                const fileName = `Students_Data_${dateString}.xlsx`;
+
+                // تصدير الملف
+                XLSX.writeFile(workbook, fileName);
+                
+                showAlert('تم تصدير البيانات بنجاح إلى ملف Excel');
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                showAlert('حدث خطأ أثناء التصدير. يرجى المحاولة مرة أخرى.');
+            }
+        }
+
+        // Setup file import
+        function setupFileImport() {
+            const fileInput = document.getElementById('excelFile');
+            const statusDiv = document.getElementById('importStatus');
+
+            fileInput.onchange = async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                statusDiv.innerHTML = '<div class="text-blue-600">جاري المعالجة...</div>';
+
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                        let importedCount = 0;
+                        let firebaseErrors = 0;
+
+                        for (let index = 0; index < jsonData.length; index++) {
+                            const row = jsonData[index];
+                            try {
+                                const student = {
+                                    academicYear: row['العام الدراسي'] || row['Academic Year'] || '2024-2025',
+                                    studentId: row['رقم الطالب'] || row['Student ID'] || '',
+                                    name: row['اسم الطالب'] || row['Student Name'] || '',
+                                    grade: row['الصف'] || row['Grade'] || '',
+                                    transport: row['النقل'] || row['Transport'] || 'بدون باص',
+                                    totalFees: parseFloat(row['الرسوم الكلية'] || row['Total Fees']) || 0,
+                                    paidFees: parseFloat(row['المسدد'] || row['Paid Fees']) || 0,
+                                    remainingFees: 0,
+                                    notes: row['الملاحظات'] || row['Notes'] || '',
+                                    createdAt: new Date().toISOString()
+                                };
+
+                                student.remainingFees = student.totalFees - student.paidFees;
+
+                                if (student.studentId && student.name && !students.some(s => s.studentId === student.studentId && s.academicYear === student.academicYear)) {
+                                    // Try to save to Firebase
+                                    try {
+                                        const firebaseId = await saveStudentToFirebase(student);
+                                        student.firebaseId = firebaseId;
+                                    } catch (firebaseError) {
+                                        firebaseErrors++;
+                                        console.warn('Firebase save failed for student:', student.name, firebaseError);
+                                    }
+
+                                    student.id = Date.now() + index;
+                                    students.push(student);
+                                    importedCount++;
+                                }
+                            } catch (error) {
+                                console.error('Error importing row:', row, error);
+                            }
+                        }
+
+                        localStorage.setItem('studentsData', JSON.stringify(students));
+                        
+                        let message = `<div class="text-green-600 font-bold">تم استيراد ${importedCount} طالب بنجاح!</div>`;
+                        if (firebaseErrors > 0) {
+                            message += `<div class="text-yellow-600">تحذير: فشل في حفظ ${firebaseErrors} طالب في Firebase (تم الحفظ محلياً)</div>`;
+                        }
+                        statusDiv.innerHTML = message;
+                        
+                        setTimeout(() => {
+                            showStudentsScreen();
+                        }, 2000);
+
+                    } catch (error) {
+                        statusDiv.innerHTML = '<div class="text-red-600 font-bold">خطأ في قراءة الملف. تأكد من صحة تنسيق الملف.</div>';
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            };
+        }
+
+        // Setup quick search with aggregated totals
+        function setupQuickSearch() {
+            const searchInput = document.getElementById('quickSearch');
+            const resultsDiv = document.getElementById('searchResults');
+
+            searchInput.oninput = function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                resultsDiv.innerHTML = '';
+
+                if (searchTerm.length < 2) return;
+
+                const matches = students.filter(student => 
+                    student.name.toLowerCase().includes(searchTerm) ||
+                    student.studentId.toLowerCase().includes(searchTerm)
+                );
+
+                if (matches.length === 0) {
+                    resultsDiv.innerHTML = '<div class="text-gray-500 dark:text-gray-400">لا توجد نتائج</div>';
+                    return;
+                }
+
+                // Group students by student ID or name
+                const groupedStudents = {};
+                
+                matches.forEach(student => {
+                    const key = student.studentId.toLowerCase();
+                    if (!groupedStudents[key]) {
+                        groupedStudents[key] = {
+                            name: student.name,
+                            studentId: student.studentId,
+                            records: [],
+                            totalAllFees: 0,
+                            totalAllPaid: 0,
+                            totalAllRemaining: 0
+                        };
+                    }
+                    
+                    groupedStudents[key].records.push(student);
+                    groupedStudents[key].totalAllFees += student.totalFees || 0;
+                    groupedStudents[key].totalAllPaid += student.paidFees || 0;
+                    groupedStudents[key].totalAllRemaining += student.remainingFees || 0;
+                });
+
+                resultsDiv.innerHTML = Object.values(groupedStudents).map(studentGroup => {
+                    const hasMultipleYears = studentGroup.records.length > 1;
+                    
+                    let html = `
+                        <div class="bg-white dark:bg-gray-700 border rounded-lg p-4 mb-4 text-right">
+                            <div class="border-b border-gray-200 dark:border-gray-600 pb-3 mb-3">
+                                <h3 class="text-lg font-bold text-gray-800 dark:text-white">${studentGroup.name}</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">رقم الطالب: ${studentGroup.studentId}</p>
+                                ${hasMultipleYears ? `<p class="text-xs text-blue-600 dark:text-blue-400">مسجل في ${studentGroup.records.length} أعوام دراسية</p>` : ''}
+                            </div>
+                    `;
+
+                    if (hasMultipleYears) {
+                        // Show aggregated totals for multiple years
+                        html += `
+                            <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-3">
+                                <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-2">الإجمالي الكلي عبر جميع الأعوام:</h4>
+                                <div class="grid grid-cols-3 gap-2 text-sm">
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">إجمالي الرسوم:</span>
+                                        <span class="font-bold text-gray-800 dark:text-white">${studentGroup.totalAllFees.toLocaleString()} د.إ</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">إجمالي المسدد:</span>
+                                        <span class="font-bold text-green-600">${studentGroup.totalAllPaid.toLocaleString()} د.إ</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">إجمالي المتبقي:</span>
+                                        <span class="font-bold ${studentGroup.totalAllRemaining > 0 ? 'text-red-600' : 'text-green-600'}">${studentGroup.totalAllRemaining.toLocaleString()} د.إ</span>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="text-gray-600 dark:text-gray-400">نسبة السداد الإجمالية:</span>
+                                    <span class="font-bold text-blue-600">${studentGroup.totalAllFees > 0 ? ((studentGroup.totalAllPaid / studentGroup.totalAllFees) * 100).toFixed(1) : 0}%</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Show details for each year
+                    html += `<div class="space-y-2">`;
+                    if (hasMultipleYears) {
+                        html += `<h4 class="font-semibold text-gray-700 dark:text-gray-300">تفاصيل كل عام:</h4>`;
+                    }
+
+                    studentGroup.records.forEach((student, index) => {
+                        html += `
+                            <div class="bg-gray-50 dark:bg-gray-600 p-3 rounded ${hasMultipleYears ? 'border-l-4 border-blue-400' : ''}">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-700 dark:text-gray-200">العام الدراسي: ${student.academicYear || '2024-2025'}</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">الصف: ${student.grade}</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">النقل: ${student.transport}</p>
+                                        ${student.notes ? `<p class="text-xs text-gray-500 dark:text-gray-400">ملاحظات: ${student.notes}</p>` : ''}
+                                    </div>
+                                    <div class="text-right text-sm">
+                                        <p class="text-gray-600 dark:text-gray-300">الرسوم: <span class="font-bold">${student.totalFees.toLocaleString()} د.إ</span></p>
+                                        <p class="text-gray-600 dark:text-gray-300">المسدد: <span class="font-bold text-green-600">${student.paidFees.toLocaleString()} د.إ</span></p>
+                                        <p class="text-gray-600 dark:text-gray-300">المتبقي: <span class="font-bold ${student.remainingFees > 0 ? 'text-red-600' : 'text-green-600'}">${student.remainingFees.toLocaleString()} د.إ</span></p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">نسبة السداد: ${student.totalFees > 0 ? ((student.paidFees / student.totalFees) * 100).toFixed(1) : 0}%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div></div>`;
+                    return html;
+                }).join('');
+            };
+        }
+
+        // Generate reports
+        function generateReports() {
+            const totalFees = students.reduce((sum, s) => sum + s.totalFees, 0);
+            const totalPaid = students.reduce((sum, s) => sum + s.paidFees, 0);
+            const totalRemaining = students.reduce((sum, s) => sum + s.remainingFees, 0);
+            const collectionRate = totalFees > 0 ? ((totalPaid / totalFees) * 100).toFixed(1) : 0;
+
+            document.getElementById('reportTotalFees').textContent = `${totalFees.toLocaleString()} د.إ`;
+            document.getElementById('reportTotalPaid').textContent = `${totalPaid.toLocaleString()} د.إ`;
+            document.getElementById('reportTotalRemaining').textContent = `${totalRemaining.toLocaleString()} د.إ`;
+            document.getElementById('reportCollectionRate').textContent = `${collectionRate}%`;
+
+            // Grade statistics
+            const gradeStats = {};
+            students.forEach(student => {
+                if (!gradeStats[student.grade]) {
+                    gradeStats[student.grade] = {
+                        count: 0,
+                        totalFees: 0,
+                        paidFees: 0,
+                        remainingFees: 0
+                    };
+                }
+                gradeStats[student.grade].count++;
+                gradeStats[student.grade].totalFees += student.totalFees;
+                gradeStats[student.grade].paidFees += student.paidFees;
+                gradeStats[student.grade].remainingFees += student.remainingFees;
+            });
+
+            const gradeStatsDiv = document.getElementById('gradeStats');
+            gradeStatsDiv.innerHTML = Object.keys(gradeStats).map(grade => {
+                const stats = gradeStats[grade];
+                const rate = stats.totalFees > 0 ? ((stats.paidFees / stats.totalFees) * 100).toFixed(1) : 0;
+                return `
+                    <div class="flex justify-between items-center bg-white dark:bg-gray-800 p-3 rounded border">
+                        <span class="font-medium text-gray-800 dark:text-white">${grade}</span>
+                        <div class="text-sm text-gray-600 dark:text-gray-300">
+                            ${stats.count} طالب | المسدد: ${stats.paidFees.toLocaleString()} د.إ | المتبقي: ${stats.remainingFees.toLocaleString()} د.إ | التحصيل: ${rate}%
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Print report
+        function printReport() {
+            const printContent = document.getElementById('reportContent').cloneNode(true);
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ar" dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>تقرير الرسوم الدراسية</title>
+                    <style>
+                        body { font-family: 'Arial', sans-serif; direction: rtl; text-align: right; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }
+                        .stat-box { padding: 20px; border: 2px solid #ccc; border-radius: 8px; text-align: center; }
+                        .grade-stat { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+                        @media print { body { margin: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>مدرسه الثروات الوطنيه الخاصه</h1>
+                        <h2>تقرير الرسوم الدراسية للعام الدراسي 2024-2025</h2>
+                        <p>تاريخ التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
+                        <p>قاعدة البيانات: Firebase Firestore</p>
+                    </div>
+                    ${printContent.innerHTML}
+                    <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #666;">
+                        تم التطوير من قبل المهندس حسين نقد | نسخة Firebase 2.0
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Backup data from Firebase
+        async function backupDataFromFirebase() {
+            const btn = document.getElementById('backupBtn');
+            btn.innerHTML = 'جاري النسخ... <div class="loading"></div>';
+            btn.disabled = true;
+
+            try {
+                await loadStudentsFromFirebase();
+                
+                const backup = {
+                    students: students,
+                    exportDate: new Date().toISOString(),
+                    version: '2.0-firebase',
+                    source: 'firebase'
+                };
+
+                const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_firebase_students_${new Date().toLocaleDateString('ar-EG')}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showAlert('تم إنشاء النسخة الاحتياطية بنجاح');
+            } catch (error) {
+                showAlert('فشل في إنشاء النسخة الاحتياطية: ' + error.message);
+            } finally {
+                btn.innerHTML = 'نسخ احتياطي من Firebase';
+                btn.disabled = false;
+            }
+        }
+
+        // Sync local data to Firebase
+        async function syncLocalToFirebase() {
+            const btn = document.getElementById('syncBtn');
+            btn.innerHTML = 'جاري المزامنة... <div class="loading"></div>';
+            btn.disabled = true;
+
+            try {
+                const localStudents = JSON.parse(localStorage.getItem('studentsData')) || [];
+                let syncedCount = 0;
+                let errorCount = 0;
+
+                for (const student of localStudents) {
+                    if (!student.firebaseId) {
+                        try {
+                            const firebaseId = await saveStudentToFirebase(student);
+                            student.firebaseId = firebaseId;
+                            syncedCount++;
+                        } catch (error) {
+                            errorCount++;
+                            console.error('Error syncing student:', student.name, error);
+                        }
+                    }
+                }
+
+                localStorage.setItem('studentsData', JSON.stringify(localStudents));
+                students = localStudents;
+
+                showAlert(`تمت المزامنة: ${syncedCount} طالب. أخطاء: ${errorCount}`);
+            } catch (error) {
+                showAlert('فشل في المزامنة: ' + error.message);
+            } finally {
+                btn.innerHTML = 'مزامنة البيانات المحلية مع Firebase';
+                btn.disabled = false;
+            }
+        }
+
+        // Clear all Firebase data
+        async function clearAllFirebaseData() {
+            try {
+                const { collection, getDocs } = window.firebaseModules;
+                const querySnapshot = await getDocs(collection(db, 'students'));
+                
+                const deletePromises = [];
+                querySnapshot.forEach((doc) => {
+                    deletePromises.push(deleteStudentFromFirebase(doc.id));
+                });
+
+                await Promise.all(deletePromises);
+                
+                students = [];
+                localStorage.removeItem('studentsData');
+                showAlert('تم مسح جميع البيانات من Firebase بنجاح');
+            } catch (error) {
+                showAlert('فشل في مسح البيانات من Firebase: ' + error.message);
+            }
+        }
+
+        // Custom modal functions
+        function showConfirmDialog(message, onConfirm) {
+            const modal = document.getElementById('customModal');
+            const messageEl = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('modalConfirm');
+            const cancelBtn = document.getElementById('modalCancel');
+
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+
+            const handleConfirm = () => {
+                modal.classList.add('hidden');
+                onConfirm();
+                confirmBtn.removeEventListener('click', handleConfirm);
+                cancelBtn.removeEventListener('click', handleCancel);
+            };
+
+            const handleCancel = () => {
+                modal.classList.add('hidden');
+                confirmBtn.removeEventListener('click', handleConfirm);
+                cancelBtn.removeEventListener('click', handleCancel);
+            };
+
+            confirmBtn.addEventListener('click', handleConfirm);
+            cancelBtn.addEventListener('click', handleCancel);
+        }
+
+        function showAlert(message) {
+            const modal = document.getElementById('customModal');
+            const messageEl = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('modalConfirm');
+            const cancelBtn = document.getElementById('modalCancel');
+
+            messageEl.textContent = message;
+            cancelBtn.style.display = 'none';
+            confirmBtn.textContent = 'موافق';
+            modal.classList.remove('hidden');
+
+            const handleOk = () => {
+                modal.classList.add('hidden');
+                cancelBtn.style.display = 'block';
+                confirmBtn.textContent = 'تأكيد';
+                confirmBtn.removeEventListener('click', handleOk);
+            };
+
+            confirmBtn.addEventListener('click', handleOk);
+        }
+
+        // Auto-calculate remaining fees on input change
+        document.addEventListener('DOMContentLoaded', async function() {
+            const totalFeesInput = document.getElementById('totalFees');
+            const paidFeesInput = document.getElementById('paidFees');
+            
+            if (totalFeesInput && paidFeesInput) {
+                totalFeesInput.addEventListener('input', calculateRemaining);
+                paidFeesInput.addEventListener('input', calculateRemaining);
+            }
+
+            // Wait for Firebase modules to load
+            const maxWaitTime = 5000; // 5 seconds
+            const startTime = Date.now();
+            
+            while (!window.firebaseModules && (Date.now() - startTime) < maxWaitTime) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            if (window.firebaseModules) {
+                const firebaseInitialized = await initializeFirebase();
+                if (firebaseInitialized) {
+                    await loadStudentsFromFirebase();
+                } else {
+                    // Load from localStorage as fallback
+                    students = JSON.parse(localStorage.getItem('studentsData')) || [];
+                }
+            } else {
+                console.error('Firebase modules failed to load');
+                updateFirebaseStatus(false);
+                // Load from localStorage as fallback
+                students = JSON.parse(localStorage.getItem('studentsData')) || [];
+            }
+        });
+    </script>
+</body>
+</html>
