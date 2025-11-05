@@ -112,6 +112,207 @@
             background-color: #ef4444;
             color: white;
         }
+
+        .highlight-search {
+            background-color: yellow;
+            font-weight: bold;
+        }
+
+        .search-clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: none;
+            transition: all 0.2s;
+        }
+
+        .search-clear-btn:hover {
+            background: #374151;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-highlight {
+            background: linear-gradient(120deg, #fbbf24 0%, #f59e0b 100%);
+            color: #1f2937;
+            font-weight: 600;
+            padding: 1px 3px;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-result-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+        }
+
+        .search-result-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: #5D5CDE;
+        }
+
+        .search-stats-badge {
+            background: linear-gradient(135deg, #5D5CDE, #8B5CF6);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(93, 92, 222, 0.3);
+        }
+
+        .search-no-results {
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border: 2px dashed #9ca3af;
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .advanced-search-panel {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .search-input-enhanced {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-input-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(93, 92, 222, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .search-input-enhanced:focus-within::before {
+            transform: translateX(100%);
+        }
+
+        @keyframes searchPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .search-loading {
+            animation: searchPulse 2s infinite;
+        }
+
+        .grade-pill {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+
+        .transport-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+
+        .payment-status {
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-complete {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #166534;
+            border: 1px solid #22c55e;
+        }
+
+        .payment-partial {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .payment-none {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .professional-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #5D5CDE, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-result-enter {
+            animation: slideInFromBottom 0.5s ease-out;
+        }
+
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .data-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            transition: all 0.3s ease;
+        }
+
+        .data-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -174,19 +375,13 @@
                 <button onclick="showSearchScreen()" class="bg-orange-600 hover:bg-orange-700 text-white p-6 rounded-lg text-center transition duration-300">
                     <div class="text-3xl mb-3">🔍</div>
                     <h3 class="text-lg font-bold mb-2">البحث عن طالب</h3>
-                    <p class="text-sm opacity-90">البحث السريع</p>
+                    <p class="text-sm opacity-90">البحث السريع والمتقدم</p>
                 </button>
                 
                 <button onclick="showReportsScreen()" class="bg-red-600 hover:bg-red-700 text-white p-6 rounded-lg text-center transition duration-300">
                     <div class="text-3xl mb-3">📈</div>
                     <h3 class="text-lg font-bold mb-2">التقارير والإحصائيات</h3>
                     <p class="text-sm opacity-90">تقارير مالية شاملة</p>
-                </button>
-                
-                <button onclick="showSettingsScreen()" class="bg-gray-600 hover:bg-gray-700 text-white p-6 rounded-lg text-center transition duration-300">
-                    <div class="text-3xl mb-3">⚙️</div>
-                    <h3 class="text-lg font-bold mb-2">إعدادات التطبيق</h3>
-                    <p class="text-sm opacity-90">إعدادات النظام والصيانة</p>
                 </button>
             </div>
         </div>
@@ -227,7 +422,7 @@
                             <option value="الصف الرابع">الصف الرابع</option>
                             <option value="الصف الخامس">الصف الخامس</option>
                             <option value="الصف السادس">الصف السادس</option>
-                            <option value="الصف السابع">الصف السابع</option>
+                            <option value="الصف السابع">الصف الثابع</option>
                             <option value="الصف الثامن">الصف الثامن</option>
                             <option value="الصف التاسع">الصف التاسع</option>
                             <option value="الصف العاشر">الصف العاشر</option>
@@ -313,19 +508,31 @@
                     </div>
                 </div>
                 
-                <div class="mb-4 flex flex-wrap gap-4">
-                    <input type="text" id="searchInput" placeholder="البحث بالاسم أو رقم الطالب..." class="flex-1 min-w-64 px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <select id="yearFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">جميع الأعوام</option>
-                    </select>
-                    <select id="gradeFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">جميع الصفوف</option>
-                    </select>
-                    <select id="paymentFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">جميع الحالات</option>
-                        <option value="مسدد">مسدد بالكامل</option>
-                        <option value="متبقي">يوجد متبقي</option>
-                    </select>
+                <div class="mb-4 space-y-4">
+                    <!-- Search Input with Clear Button -->
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="البحث بالاسم أو رقم الطالب..." class="w-full px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white pr-10">
+                        <button class="search-clear-btn" id="clearSearchBtn" onclick="clearSearch()">&times;</button>
+                    </div>
+                    
+                    <!-- Filters Row -->
+                    <div class="flex flex-wrap gap-4">
+                        <select id="yearFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">جميع الأعوام</option>
+                        </select>
+                        <select id="gradeFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">جميع الصفوف</option>
+                        </select>
+                        <select id="paymentFilter" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">جميع الحالات</option>
+                            <option value="مسدد">مسدد بالكامل</option>
+                            <option value="متبقي">يوجد متبقي</option>
+                        </select>
+                        <button onclick="clearAllFilters()" class="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg">مسح الفلاتر</button>
+                    </div>
+                    
+                    <!-- Search Results Counter -->
+                    <div id="searchResultsCount" class="text-sm text-gray-600 dark:text-gray-400" style="display: none;"></div>
                 </div>
                 
                 <div class="overflow-x-auto">
@@ -369,19 +576,44 @@
             </div>
         </div>
 
-        <!-- Search Screen -->
+        <!-- Enhanced Search Screen -->
         <div id="searchScreen" class="hidden">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">البحث عن طالب</h2>
-                    <button onclick="showMainScreen()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">عودة</button>
+            <div class="professional-card rounded-2xl shadow-xl p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center text-white text-2xl">
+                            🔍
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold gradient-text">البحث المتقدم عن الطلاب</h2>
+                            <p class="text-gray-600 dark:text-gray-400 mt-1">ابحث عن الطلاب واستعرض بياناتهم المالية بشكل تفصيلي</p>
+                        </div>
+                    </div>
+                    <button onclick="showMainScreen()" class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center gap-2">
+                        <span>⬅️</span> عودة
+                    </button>
                 </div>
                 
-                <div class="text-center py-8">
-                    <div class="text-6xl mb-4">🔍</div>
-                    <input type="text" id="quickSearch" placeholder="أدخل اسم الطالب أو رقمه..." class="w-full max-w-md px-4 py-3 text-base border-2 rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <div id="searchResults" class="mt-6"></div>
+                <!-- Enhanced Search Input -->
+                <div class="mb-8">
+                    <div class="search-container max-w-2xl mx-auto search-input-enhanced">
+                        <div class="relative">
+                            <input type="text" id="quickSearch" placeholder="🔍 ابدأ البحث بكتابة اسم الطالب أو رقمه..." class="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-2xl focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white pr-12 shadow-lg transition-all duration-300">
+                            <button class="search-clear-btn" id="clearQuickSearchBtn" onclick="clearQuickSearch()">&times;</button>
+                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Statistics -->
+                    <div id="quickSearchCount" class="text-center mt-4" style="display: none;"></div>
                 </div>
+                
+                <!-- Search Results -->
+                <div id="searchResults" class="space-y-6"></div>
             </div>
         </div>
 
@@ -419,62 +651,6 @@
                     <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
                         <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">إحصائيات حسب الصف</h3>
                         <div id="gradeStats" class="space-y-3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Screen -->
-        <div id="settingsScreen" class="hidden">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">إعدادات التطبيق</h2>
-                    <button onclick="showMainScreen()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">عودة</button>
-                </div>
-                
-                <div class="space-y-6">
-                    <div class="border-b dark:border-gray-700 pb-6">
-                        <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">إعدادات Firebase</h3>
-                        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
-                            <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-2">إعدادات Firebase الحالية:</h4>
-                            <div class="text-sm text-blue-700 dark:text-blue-400 space-y-1">
-                                <p><strong>Project ID:</strong> <span id="currentProjectId">school-fees-system</span></p>
-                                <p><strong>Auth Domain:</strong> <span id="currentAuthDomain">school-fees-system.firebaseapp.com</span></p>
-                                <p><strong>حالة الاتصال:</strong> <span id="connectionStatus">جاري التحقق...</span></p>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap gap-4">
-                            <button onclick="testFirebaseConnection()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded" id="testFirebaseBtn">
-                                اختبار الاتصال
-                            </button>
-                            <div id="firebaseConnectionStatus" class="flex items-center"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="border-b dark:border-gray-700 pb-6">
-                        <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">إدارة البيانات</h3>
-                        <div class="flex flex-wrap gap-4">
-                            <button onclick="backupDataFromFirebase()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" id="backupBtn">
-                                نسخ احتياطي من Firebase
-                            </button>
-                            <button onclick="syncLocalToFirebase()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded" id="syncBtn">
-                                مزامنة البيانات المحلية مع Firebase
-                            </button>
-                            <button onclick="showConfirmDialog('هل أنت متأكد من حذف جميع البيانات من Firebase؟ هذا الإجراء لا يمكن التراجع عنه.', clearAllFirebaseData)" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-                                مسح جميع البيانات من Firebase
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">معلومات التطبيق</h3>
-                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-2">
-                            <p class="text-gray-700 dark:text-gray-300"><strong>اسم التطبيق:</strong> نظام متابعة الرسوم الدراسية</p>
-                            <p class="text-gray-700 dark:text-gray-300"><strong>الإصدار:</strong> 2.0 مع Firebase</p>
-                            <p class="text-gray-700 dark:text-gray-300"><strong>قاعدة البيانات:</strong> <span id="dbStatus">Firebase Firestore</span></p>
-                            <p class="text-gray-700 dark:text-gray-300"><strong>الصفوف المدعومة:</strong> من KG1 إلى الصف الثاني عشر</p>
-                            <p class="text-gray-700 dark:text-gray-300"><strong>المطور:</strong> المهندس حسين نقد</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -518,8 +694,7 @@
         let db = null;
         let students = [];
 
-        // Firebase Configuration - إعدادات Firebase مدمجة في الكود
-        // ملاحظة: يجب استبدال هذه الإعدادات بإعدادات مشروعك الفعلي من Firebase Console
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB3MOE5YPH3cljdhBt6YnGmn5REo_YfBio",
             authDomain: "foozapp-cf41e.firebaseapp.com",
@@ -528,8 +703,289 @@
             messagingSenderId: "941235984421",
             appId: "1:941235984421:web:43d8c80847dc83266bc7cc",
             measurementId: "G-X2C2T9V3PP"
-            
         };
+
+        // Function to normalize Arabic text for better search
+        function normalizeText(text) {
+            if (!text) return '';
+            return text
+                .toString()
+                .toLowerCase()
+                .trim()
+                // Remove diacritics/tashkeel
+                .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+                // Normalize alef variants
+                .replace(/[أإآ]/g, 'ا')
+                // Normalize teh marbuta
+                .replace(/ة/g, 'ه')
+                // Normalize yeh variants  
+                .replace(/ي/g, 'ى')
+                // Remove extra spaces
+                .replace(/\s+/g, ' ');
+        }
+
+        // Enhanced search function with highlighting
+        function performSearch(searchTerm, targetName, targetId) {
+            if (!searchTerm || searchTerm.length < 1) return true;
+            
+            const normalizedSearch = normalizeText(searchTerm);
+            const normalizedName = normalizeText(targetName);
+            const normalizedId = normalizeText(targetId);
+            
+            // Split search term by spaces and check if all parts match
+            const searchParts = normalizedSearch.split(' ').filter(part => part.length > 0);
+            
+            return searchParts.every(part => 
+                normalizedName.includes(part) || normalizedId.includes(part)
+            );
+        }
+
+        // Highlight search terms in text
+        function highlightSearchTerms(text, searchTerm) {
+            if (!searchTerm || !text) return text;
+            
+            const normalizedSearch = normalizeText(searchTerm);
+            const searchParts = normalizedSearch.split(' ').filter(part => part.length > 0);
+            let highlightedText = text;
+            
+            searchParts.forEach(part => {
+                if (part.length > 1) {
+                    // Find the original text that matches the normalized part
+                    const regex = new RegExp(`([\\u0600-\\u06FF\\w]*${part}[\\u0600-\\u06FF\\w]*)`, 'gi');
+                    highlightedText = highlightedText.replace(regex, '<span class="search-highlight">$1</span>');
+                }
+            });
+            
+            return highlightedText;
+        }
+
+        // Get payment status with styling
+        function getPaymentStatus(totalFees, paidFees, remainingFees) {
+            if (remainingFees <= 0) {
+                return '<span class="payment-status payment-complete">✅ مسدد بالكامل</span>';
+            } else if (paidFees > 0) {
+                return '<span class="payment-status payment-partial">⚠️ مسدد جزئياً</span>';
+            } else {
+                return '<span class="payment-status payment-none">❌ غير مسدد</span>';
+            }
+        }
+
+        // Enhanced Professional Search Result Renderer
+        function renderSearchResult(studentGroup, searchTerm) {
+            const hasMultipleYears = studentGroup.records.length > 1;
+            const highlightedName = highlightSearchTerms(studentGroup.name, searchTerm);
+            const highlightedId = highlightSearchTerms(studentGroup.studentId, searchTerm);
+            
+            let html = `
+                <div class="search-result-card professional-card rounded-3xl p-8 mb-8 text-right shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 search-result-enter border border-gray-200 dark:border-gray-600">
+                    <!-- Enhanced Student Header -->
+                    <div class="border-b-2 border-gradient-to-r from-blue-200 via-purple-200 to-pink-200 dark:from-blue-800 dark:via-purple-800 dark:to-pink-800 pb-6 mb-6">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                                        ${studentGroup.name.charAt(0)}
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">${highlightedName}</h3>
+                                        <div class="flex flex-wrap gap-3 items-center">
+                                            <div class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-600 dark:to-gray-700 px-4 py-2 rounded-full text-sm text-gray-700 dark:text-gray-300 font-semibold border border-gray-300 dark:border-gray-500">
+                                                🆔 <strong>${highlightedId}</strong>
+                                            </div>
+                                            ${hasMultipleYears ? `<div class="search-stats-badge animate-pulse shadow-lg">📚 ${studentGroup.records.length} سنوات دراسية</div>` : ''}
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-3 py-1 rounded-full">
+                                                🕒 آخر تحديث: ${new Date().toLocaleDateString('ar-EG')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-xl font-bold mb-3">
+                                    ${getPaymentStatus(studentGroup.totalAllFees, studentGroup.totalAllPaid, studentGroup.totalAllRemaining)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            if (hasMultipleYears) {
+                // Enhanced aggregated totals for multiple years with premium design
+                const collectionRate = studentGroup.totalAllFees > 0 ? 
+                    ((studentGroup.totalAllPaid / studentGroup.totalAllFees) * 100).toFixed(1) : 0;
+                
+                html += `
+                    <div class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30 p-8 rounded-3xl mb-8 border-l-8 border-gradient-to-b from-blue-500 to-purple-600 shadow-inner relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/10 to-transparent rounded-full transform translate-x-16 -translate-y-16"></div>
+                        <div class="relative z-10">
+                            <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-6 flex items-center text-2xl">
+                                <span class="ml-4 text-3xl animate-bounce">📊</span>
+                                الملخص المالي الشامل عبر جميع السنوات
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                <div class="text-center data-card p-6 rounded-2xl shadow-lg hover:shadow-xl">
+                                    <div class="text-blue-600 dark:text-blue-400 text-4xl mb-3">💰</div>
+                                    <div class="text-gray-600 dark:text-gray-400 text-sm mb-2 font-medium">إجمالي الرسوم</div>
+                                    <div class="font-bold text-2xl text-gray-800 dark:text-white">${studentGroup.totalAllFees.toLocaleString()}</div>
+                                    <div class="text-sm text-gray-500 mt-1">درهم إماراتي</div>
+                                </div>
+                                <div class="text-center data-card p-6 rounded-2xl shadow-lg hover:shadow-xl">
+                                    <div class="text-green-600 text-4xl mb-3">✅</div>
+                                    <div class="text-gray-600 dark:text-gray-400 text-sm mb-2 font-medium">إجمالي المسدد</div>
+                                    <div class="font-bold text-2xl text-green-600">${studentGroup.totalAllPaid.toLocaleString()}</div>
+                                    <div class="text-sm text-gray-500 mt-1">درهم إماراتي</div>
+                                </div>
+                                <div class="text-center data-card p-6 rounded-2xl shadow-lg hover:shadow-xl">
+                                    <div class="${studentGroup.totalAllRemaining > 0 ? 'text-red-600' : 'text-green-600'} text-4xl mb-3">
+                                        ${studentGroup.totalAllRemaining > 0 ? '⚠️' : '🎉'}
+                                    </div>
+                                    <div class="text-gray-600 dark:text-gray-400 text-sm mb-2 font-medium">إجمالي المتبقي</div>
+                                    <div class="font-bold text-2xl ${studentGroup.totalAllRemaining > 0 ? 'text-red-600' : 'text-green-600'}">${studentGroup.totalAllRemaining.toLocaleString()}</div>
+                                    <div class="text-sm text-gray-500 mt-1">درهم إماراتي</div>
+                                </div>
+                                <div class="text-center data-card p-6 rounded-2xl shadow-lg hover:shadow-xl">
+                                    <div class="text-purple-600 text-4xl mb-3">📈</div>
+                                    <div class="text-gray-600 dark:text-gray-400 text-sm mb-2 font-medium">نسبة السداد</div>
+                                    <div class="font-bold text-2xl text-purple-600">${collectionRate}%</div>
+                                    <div class="text-sm text-gray-500 mt-1">من الإجمالي</div>
+                                </div>
+                            </div>
+                            <!-- Enhanced Progress Bar for overall collection -->
+                            <div class="mt-6">
+                                <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">
+                                    <span>📊 نسبة التحصيل الإجمالية</span>
+                                    <span class="font-bold">${collectionRate}%</span>
+                                </div>
+                                <div class="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden shadow-inner">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 h-full rounded-full transition-all duration-1000 shadow-lg" style="width: ${collectionRate}%"></div>
+                                    <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    <span>0%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Enhanced details for each year with premium visual hierarchy
+            html += `<div class="space-y-6">`;
+            if (hasMultipleYears) {
+                html += `
+                    <div class="flex items-center gap-4 mb-6">
+                        <h4 class="font-bold text-gray-700 dark:text-gray-300 text-2xl">📅 السجل الأكاديمي التفصيلي</h4>
+                        <div class="flex-1 h-1 bg-gradient-to-r from-gray-300 via-blue-300 to-purple-300 rounded-full"></div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                            ${studentGroup.records.length} سنة دراسية
+                        </div>
+                    </div>
+                `;
+            }
+
+            studentGroup.records.sort((a, b) => (b.academicYear || '').localeCompare(a.academicYear || '')).forEach((student, index) => {
+                const paymentRate = student.totalFees > 0 ? ((student.paidFees / student.totalFees) * 100).toFixed(1) : 0;
+                const isLatestYear = index === 0 && hasMultipleYears;
+                
+                html += `
+                    <div class="relative data-card p-6 rounded-3xl ${hasMultipleYears ? 'border-r-8 border-gradient-to-b from-blue-400 to-purple-500' : 'border-2 border-gray-200 dark:border-gray-600'} hover:shadow-2xl transition-all duration-500 group ${isLatestYear ? 'ring-4 ring-blue-300 dark:ring-blue-600 ring-opacity-50' : ''} overflow-hidden">
+                        ${isLatestYear ? '<div class="absolute -top-2 -right-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm px-4 py-2 rounded-full font-bold shadow-lg animate-pulse">✨ العام الحالي</div>' : ''}
+                        
+                        <!-- Enhanced Year Header -->
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex-1">
+                                <div class="flex flex-wrap gap-4 items-center mb-4">
+                                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-5 py-3 rounded-2xl text-base font-bold shadow-lg">
+                                        📅 ${student.academicYear || '2024-2025'}
+                                    </div>
+                                    <div class="grade-pill bg-gradient-to-r from-green-500 to-blue-600 text-white px-4 py-2 rounded-2xl shadow-md">
+                                        🎓 ${student.grade}
+                                    </div>
+                                    ${student.transport === 'باص' ? 
+                                        '<div class="transport-badge bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-2xl shadow-md">🚌 نقل مدرسي</div>' : 
+                                        '<div class="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-2xl text-sm font-medium">🚶 بدون نقل</div>'
+                                    }
+                                </div>
+                                ${student.notes ? `
+                                    <div class="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-2 border-amber-200 dark:border-amber-700 p-4 rounded-2xl mt-4 shadow-inner">
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-amber-600 dark:text-amber-400 text-2xl">📝</span>
+                                            <div class="flex-1">
+                                                <div class="text-sm text-amber-700 dark:text-amber-300 font-bold mb-2">📋 ملاحظات مهمة:</div>
+                                                <p class="text-amber-800 dark:text-amber-200 leading-relaxed">${student.notes}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Financial Details Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="data-card p-5 rounded-2xl text-center shadow-lg hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                <div class="text-blue-600 dark:text-blue-400 text-3xl mb-3">💳</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">الرسوم الكلية</div>
+                                <div class="font-bold text-xl text-gray-800 dark:text-white">${student.totalFees.toLocaleString()}</div>
+                                <div class="text-xs text-gray-400 mt-1">درهم إماراتي</div>
+                            </div>
+                            <div class="data-card p-5 rounded-2xl text-center shadow-lg hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                <div class="text-green-600 text-3xl mb-3">💵</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">المبلغ المسدد</div>
+                                <div class="font-bold text-xl text-green-600">${student.paidFees.toLocaleString()}</div>
+                                <div class="text-xs text-gray-400 mt-1">درهم إماراتي</div>
+                            </div>
+                            <div class="data-card p-5 rounded-2xl text-center shadow-lg hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                <div class="${student.remainingFees > 0 ? 'text-red-600' : 'text-green-600'} text-3xl mb-3">
+                                    ${student.remainingFees > 0 ? '⏰' : '✅'}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">المبلغ المتبقي</div>
+                                <div class="font-bold text-xl ${student.remainingFees > 0 ? 'text-red-600' : 'text-green-600'}">${student.remainingFees.toLocaleString()}</div>
+                                <div class="text-xs text-gray-400 mt-1">درهم إماراتي</div>
+                            </div>
+                            <div class="data-card p-5 rounded-2xl text-center shadow-lg hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                <div class="text-purple-600 dark:text-purple-400 text-3xl mb-3">📊</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">نسبة السداد</div>
+                                <div class="font-bold text-xl text-purple-600 dark:text-purple-400">${paymentRate}%</div>
+                                <div class="text-xs text-gray-400 mt-1">مكتمل</div>
+                            </div>
+                        </div>
+
+                        <!-- Premium Progress Bar -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 font-medium">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-3 h-3 bg-gradient-to-r from-green-400 to-purple-600 rounded-full"></span>
+                                    تقدم السداد
+                                </span>
+                                <span class="font-bold text-lg">${paymentRate}% مكتمل</span>
+                            </div>
+                            <div class="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-5 overflow-hidden shadow-inner">
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 h-full rounded-full transition-all duration-1000 shadow-lg" style="width: ${paymentRate}%"></div>
+                                <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>0 د.إ</span>
+                                <span class="font-medium">${student.totalFees.toLocaleString()} د.إ</span>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Quick Actions -->
+                        <div class="flex justify-end gap-3 mt-6 pt-4 border-t-2 border-gray-200 dark:border-gray-600">
+                            <button onclick="editStudent('${student.firebaseId || student.id}')" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                <span class="text-lg">✏️</span> تعديل البيانات
+                            </button>
+                            <button onclick="deleteStudent('${student.firebaseId || student.id}')" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                <span class="text-lg">🗑️</span> حذف السجل
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            return html;
+        }
 
         // Initialize Firebase
         async function initializeFirebase() {
@@ -539,26 +995,12 @@
                 db = getFirestore(firebaseApp);
                 
                 updateFirebaseStatus(true);
-                updateConnectionInfo();
                 return true;
             } catch (error) {
                 console.error('Firebase initialization error:', error);
                 updateFirebaseStatus(false);
-                updateConnectionInfo('خطأ في الاتصال');
                 return false;
             }
-        }
-
-        // Update connection info in settings
-        function updateConnectionInfo(status = 'متصل') {
-            document.getElementById('currentProjectId').textContent = firebaseConfig.projectId;
-            document.getElementById('currentAuthDomain').textContent = firebaseConfig.authDomain;
-            document.getElementById('connectionStatus').textContent = status;
-        }
-
-        // Get Firebase config
-        function getFirebaseConfig() {
-            return firebaseConfig;
         }
 
         // Update Firebase status indicator
@@ -570,37 +1012,6 @@
             } else {
                 statusEl.className = 'firebase-status firebase-disconnected';
                 statusEl.textContent = 'Firebase غير متصل';
-            }
-        }
-
-        // Test Firebase connection
-        async function testFirebaseConnection() {
-            const btn = document.getElementById('testFirebaseBtn');
-            const status = document.getElementById('firebaseConnectionStatus');
-            
-            btn.innerHTML = 'جاري الاختبار... <div class="loading"></div>';
-            btn.disabled = true;
-
-            try {
-                if (!db) {
-                    const success = await initializeFirebase();
-                    if (!success) throw new Error('فشل في تهيئة Firebase');
-                }
-
-                const { collection, getDocs } = window.firebaseModules;
-                const querySnapshot = await getDocs(collection(db, 'students'));
-                
-                status.innerHTML = '<span class="text-green-600 font-bold">✓ الاتصال ناجح</span>';
-                updateConnectionInfo('متصل بنجاح');
-                showAlert('تم الاتصال بـ Firebase بنجاح');
-            } catch (error) {
-                console.error('Firebase connection test failed:', error);
-                status.innerHTML = '<span class="text-red-600 font-bold">✗ فشل الاتصال</span>';
-                updateConnectionInfo('فشل في الاتصال');
-                showAlert('فشل في الاتصال بـ Firebase: ' + error.message);
-            } finally {
-                btn.innerHTML = 'اختبار الاتصال';
-                btn.disabled = false;
             }
         }
 
@@ -640,11 +1051,28 @@
                     }
                 });
 
+                // Refresh current screen if on students or search screen
+                const currentScreen = getCurrentScreen();
+                if (currentScreen === 'studentsScreen') {
+                    loadStudentsTable();
+                } else if (currentScreen === 'searchScreen') {
+                    setupQuickSearch();
+                }
+
                 showAlert('تم تحديث البيانات من Firebase بنجاح');
             } catch (error) {
                 console.error('Error loading students from Firebase:', error);
                 // Fallback to localStorage
                 students = JSON.parse(localStorage.getItem('studentsData')) || [];
+                
+                // Refresh current screen
+                const currentScreen = getCurrentScreen();
+                if (currentScreen === 'studentsScreen') {
+                    loadStudentsTable();
+                } else if (currentScreen === 'searchScreen') {
+                    setupQuickSearch();
+                }
+                
                 showAlert('تم تحميل البيانات المحلية (فشل تحميل البيانات من Firebase)');
             } finally {
                 if (btn) {
@@ -652,6 +1080,12 @@
                     btn.disabled = false;
                 }
             }
+        }
+
+        // Get current screen
+        function getCurrentScreen() {
+            const screens = ['splashScreen', 'mainScreen', 'addStudentScreen', 'importScreen', 'studentsScreen', 'searchScreen', 'reportsScreen'];
+            return screens.find(screen => !document.getElementById(screen).classList.contains('hidden'));
         }
 
         // Save student to Firebase
@@ -687,7 +1121,7 @@
 
         // Show specific screen
         function showScreen(screenId) {
-            const screens = ['splashScreen', 'mainScreen', 'addStudentScreen', 'importScreen', 'studentsScreen', 'searchScreen', 'reportsScreen', 'settingsScreen'];
+            const screens = ['splashScreen', 'mainScreen', 'addStudentScreen', 'importScreen', 'studentsScreen', 'searchScreen', 'reportsScreen'];
             screens.forEach(screen => {
                 document.getElementById(screen).classList.add('hidden');
             });
@@ -713,7 +1147,6 @@
             showScreen('reportsScreen'); 
             generateReports();
         }
-        function showSettingsScreen() { showScreen('settingsScreen'); }
 
         // Calculate remaining fees
         function calculateRemaining() {
@@ -783,25 +1216,44 @@
             document.getElementById('remainingFees').value = '';
         }
 
-        // Load students table
+        // Load students table with enhanced rendering
         function loadStudentsTable() {
             const tbody = document.getElementById('studentsTableBody');
             tbody.innerHTML = '';
 
-            students.forEach(student => {
+            students.forEach((student, index) => {
                 const row = tbody.insertRow();
+                row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200';
+                
+                // Add row data attributes for searching
+                row.setAttribute('data-name', student.name);
+                row.setAttribute('data-id', student.studentId);
+                row.setAttribute('data-grade', student.grade);
+                row.setAttribute('data-year', student.academicYear || '2024-2025');
+                
+                const paymentStatusClass = student.remainingFees > 0 ? 'text-red-600' : 'text-green-600';
+                const paymentStatusIcon = student.remainingFees > 0 ? '⚠️' : '✅';
+                
                 row.innerHTML = `
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.academicYear || '2024-2025'}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.studentId}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.name}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.grade}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.transport}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.totalFees} د.إ</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${student.paidFees} د.إ</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm ${student.remainingFees > 0 ? 'text-red-600' : 'text-green-600'}">${student.remainingFees} د.إ</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-mono" data-searchable="id">${student.studentId}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-medium" data-searchable="name">${student.name}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                        <span class="grade-pill">${student.grade}</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                        ${student.transport === 'باص' ? '<span class="transport-badge">🚌 باص</span>' : '<span class="text-gray-500">🚶 بدون باص</span>'}
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-bold">${student.totalFees.toLocaleString()} د.إ</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-green-600 font-bold">${student.paidFees.toLocaleString()} د.إ</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm ${paymentStatusClass} font-bold">
+                        ${paymentStatusIcon} ${student.remainingFees.toLocaleString()} د.إ
+                    </td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="editStudent('${student.firebaseId || student.id}')" class="text-blue-600 hover:text-blue-900 ml-2">تعديل</button>
-                        <button onclick="deleteStudent('${student.firebaseId || student.id}')" class="text-red-600 hover:text-red-900">حذف</button>
+                        <div class="flex space-x-reverse space-x-2">
+                            <button onclick="editStudent('${student.firebaseId || student.id}')" class="text-blue-600 hover:text-blue-900 hover:bg-blue-50 px-2 py-1 rounded transition-colors">✏️ تعديل</button>
+                            <button onclick="deleteStudent('${student.firebaseId || student.id}')" class="text-red-600 hover:text-red-900 hover:bg-red-50 px-2 py-1 rounded transition-colors">🗑️ حذف</button>
+                        </div>
                     </td>
                 `;
             });
@@ -810,6 +1262,7 @@
             updateFilters();
             // Update statistics
             updateStudentsStats();
+            // Setup table filters
             setupTableFilters();
         }
 
@@ -818,17 +1271,21 @@
             // Update year filter
             const yearFilter = document.getElementById('yearFilter');
             const years = [...new Set(students.map(s => s.academicYear).filter(y => y))];
+            const currentYearValue = yearFilter.value;
             yearFilter.innerHTML = '<option value="">جميع الأعوام</option>';
             years.forEach(year => {
-                yearFilter.innerHTML += `<option value="${year}">${year}</option>`;
+                const selected = year === currentYearValue ? 'selected' : '';
+                yearFilter.innerHTML += `<option value="${year}" ${selected}>${year}</option>`;
             });
 
             // Update grade filter
             const gradeFilter = document.getElementById('gradeFilter');
             const grades = [...new Set(students.map(s => s.grade))];
+            const currentGradeValue = gradeFilter.value;
             gradeFilter.innerHTML = '<option value="">جميع الصفوف</option>';
             grades.forEach(grade => {
-                gradeFilter.innerHTML += `<option value="${grade}">${grade}</option>`;
+                const selected = grade === currentGradeValue ? 'selected' : '';
+                gradeFilter.innerHTML += `<option value="${grade}" ${selected}>${grade}</option>`;
             });
         }
 
@@ -845,29 +1302,55 @@
             document.getElementById('totalRemainingStat').textContent = `${totalRemaining.toLocaleString()} د.إ`;
         }
 
-        // Setup table filters
+        // Setup table filters with improved search
         function setupTableFilters() {
             const searchInput = document.getElementById('searchInput');
             const yearFilter = document.getElementById('yearFilter');
             const gradeFilter = document.getElementById('gradeFilter');
             const paymentFilter = document.getElementById('paymentFilter');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+            // Remove existing event listeners by cloning elements
+            function resetElement(element) {
+                const newElement = element.cloneNode(true);
+                element.parentNode.replaceChild(newElement, element);
+                return newElement;
+            }
+
+            const newSearchInput = resetElement(searchInput);
+            const newYearFilter = resetElement(yearFilter);
+            const newGradeFilter = resetElement(gradeFilter);
+            const newPaymentFilter = resetElement(paymentFilter);
 
             function filterTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const selectedYear = yearFilter.value;
-                const selectedGrade = gradeFilter.value;
-                const selectedPayment = paymentFilter.value;
+                const searchTerm = document.getElementById('searchInput').value;
+                const selectedYear = document.getElementById('yearFilter').value;
+                const selectedGrade = document.getElementById('gradeFilter').value;
+                const selectedPayment = document.getElementById('paymentFilter').value;
 
                 const rows = document.getElementById('studentsTableBody').getElementsByTagName('tr');
+                let visibleCount = 0;
                 
                 Array.from(rows).forEach(row => {
-                    const year = row.cells[0].textContent;
-                    const studentId = row.cells[1].textContent.toLowerCase();
-                    const studentName = row.cells[2].textContent.toLowerCase();
-                    const grade = row.cells[3].textContent;
-                    const remaining = parseFloat(row.cells[7].textContent);
+                    const year = row.cells[0].textContent.trim();
+                    const studentIdCell = row.cells[1];
+                    const studentNameCell = row.cells[2];
+                    const studentId = studentIdCell.getAttribute('data-original-text') || studentIdCell.textContent.trim();
+                    const studentName = studentNameCell.getAttribute('data-original-text') || studentNameCell.textContent.trim();
+                    const grade = row.cells[3].textContent.trim();
+                    const remainingText = row.cells[7].textContent.replace(/[^\d.-]/g, '');
+                    const remaining = parseFloat(remainingText) || 0;
 
-                    const matchesSearch = studentId.includes(searchTerm) || studentName.includes(searchTerm);
+                    // Store original text if not already stored
+                    if (!studentIdCell.getAttribute('data-original-text')) {
+                        studentIdCell.setAttribute('data-original-text', studentId);
+                    }
+                    if (!studentNameCell.getAttribute('data-original-text')) {
+                        studentNameCell.setAttribute('data-original-text', studentName);
+                    }
+
+                    // Enhanced search matching
+                    const matchesSearch = performSearch(searchTerm, studentName, studentId);
                     const matchesYear = !selectedYear || year === selectedYear;
                     const matchesGrade = !selectedGrade || grade === selectedGrade;
                     const matchesPayment = !selectedPayment || 
@@ -876,16 +1359,94 @@
 
                     if (matchesSearch && matchesYear && matchesGrade && matchesPayment) {
                         row.style.display = '';
+                        visibleCount++;
+                        
+                        // Highlight search terms in visible rows
+                        if (searchTerm.trim()) {
+                            const highlightedId = highlightSearchTerms(studentId, searchTerm);
+                            const highlightedName = highlightSearchTerms(studentName, searchTerm);
+                            
+                            // Only update if highlighting is needed
+                            if (highlightedId !== studentId) {
+                                studentIdCell.innerHTML = highlightedId;
+                            }
+                            if (highlightedName !== studentName) {
+                                studentNameCell.innerHTML = highlightedName;
+                            }
+                        } else {
+                            // Restore original text when no search
+                            studentIdCell.textContent = studentId;
+                            studentNameCell.textContent = studentName;
+                        }
                     } else {
                         row.style.display = 'none';
+                        // Reset to original text for hidden rows
+                        studentIdCell.textContent = studentId;
+                        studentNameCell.textContent = studentName;
                     }
                 });
+
+                // Update search results count
+                updateSearchResultsCount(visibleCount);
+                
+                // Show/hide clear button
+                const clearBtn = document.getElementById('clearSearchBtn');
+                if (searchTerm.trim()) {
+                    clearBtn.style.display = 'block';
+                } else {
+                    clearBtn.style.display = 'none';
+                    // Reset all highlighting when search is cleared
+                    Array.from(rows).forEach(row => {
+                        const studentIdCell = row.cells[1];
+                        const studentNameCell = row.cells[2];
+                        const originalId = studentIdCell.getAttribute('data-original-text');
+                        const originalName = studentNameCell.getAttribute('data-original-text');
+                        
+                        if (originalId) studentIdCell.textContent = originalId;
+                        if (originalName) studentNameCell.textContent = originalName;
+                    });
+                }
             }
 
-            searchInput.addEventListener('input', filterTable);
-            yearFilter.addEventListener('change', filterTable);
-            gradeFilter.addEventListener('change', filterTable);
-            paymentFilter.addEventListener('change', filterTable);
+            // Add event listeners
+            document.getElementById('searchInput').addEventListener('input', filterTable);
+            document.getElementById('yearFilter').addEventListener('change', filterTable);
+            document.getElementById('gradeFilter').addEventListener('change', filterTable);
+            document.getElementById('paymentFilter').addEventListener('change', filterTable);
+
+            // Clear search
+            window.clearSearch = function() {
+                document.getElementById('searchInput').value = '';
+                filterTable();
+            };
+
+            // Initial filter
+            filterTable();
+        }
+
+        // Update search results count
+        function updateSearchResultsCount(count) {
+            const countElement = document.getElementById('searchResultsCount');
+            const searchInput = document.getElementById('searchInput');
+            
+            if (searchInput && searchInput.value.trim()) {
+                countElement.textContent = `تم العثور على ${count} نتيجة`;
+                countElement.style.display = 'block';
+            } else {
+                countElement.style.display = 'none';
+            }
+        }
+
+        // Clear all filters
+        function clearAllFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('yearFilter').value = '';
+            document.getElementById('gradeFilter').value = '';
+            document.getElementById('paymentFilter').value = '';
+            
+            // Trigger filter update
+            const event = new Event('input', { bubbles: true });
+            document.getElementById('searchInput').dispatchEvent(event);
         }
 
         // Delete student
@@ -900,7 +1461,15 @@
 
                     students = students.filter(s => (s.firebaseId || s.id).toString() !== id.toString());
                     localStorage.setItem('studentsData', JSON.stringify(students));
-                    loadStudentsTable();
+                    
+                    // Refresh current screen
+                    const currentScreen = getCurrentScreen();
+                    if (currentScreen === 'studentsScreen') {
+                        loadStudentsTable();
+                    } else if (currentScreen === 'searchScreen') {
+                        setupQuickSearch();
+                    }
+                    
                     showAlert('تم حذف بيانات الطالب بنجاح');
                 } catch (error) {
                     showAlert('خطأ في حذف البيانات: ' + error.message);
@@ -1069,28 +1638,165 @@
             };
         }
 
-        // Setup quick search with aggregated totals
+        // Setup enhanced quick search with professional results
         function setupQuickSearch() {
             const searchInput = document.getElementById('quickSearch');
             const resultsDiv = document.getElementById('searchResults');
+            const countDiv = document.getElementById('quickSearchCount');
+            const clearBtn = document.getElementById('clearQuickSearchBtn');
+
+            // Clear previous search
+            searchInput.value = '';
+            resultsDiv.innerHTML = '';
+            countDiv.style.display = 'none';
+            clearBtn.style.display = 'none';
+
+            let searchTimeout = null;
 
             searchInput.oninput = function() {
-                const searchTerm = this.value.toLowerCase().trim();
+                const searchTerm = this.value.trim();
+                
+                // Clear previous timeout
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+
+                // Show loading state
+                if (searchTerm.length >= 1) {
+                    resultsDiv.innerHTML = `
+                        <div class="search-loading text-center py-16">
+                            <div class="text-6xl mb-6 animate-bounce">🔍</div>
+                            <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 p-6 rounded-2xl max-w-md mx-auto">
+                                <p class="text-gray-600 dark:text-gray-400 text-lg font-medium">جاري البحث في قاعدة البيانات...</p>
+                                <div class="mt-4">
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-blue-400 to-purple-600 h-2 rounded-full animate-pulse" style="width: 70%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Debounce search
+                searchTimeout = setTimeout(() => {
+                    performQuickSearch(searchTerm);
+                }, 300);
+            };
+
+            function performQuickSearch(searchTerm) {
                 resultsDiv.innerHTML = '';
+                countDiv.style.display = 'none';
 
-                if (searchTerm.length < 2) return;
-
-                const matches = students.filter(student => 
-                    student.name.toLowerCase().includes(searchTerm) ||
-                    student.studentId.toLowerCase().includes(searchTerm)
-                );
-
-                if (matches.length === 0) {
-                    resultsDiv.innerHTML = '<div class="text-gray-500 dark:text-gray-400">لا توجد نتائج</div>';
+                if (searchTerm.length < 1) {
+                    clearBtn.style.display = 'none';
+                    resultsDiv.innerHTML = `
+                        <div class="text-center py-20">
+                            <div class="relative">
+                                <div class="text-8xl mb-6 opacity-60 animate-pulse">🔍</div>
+                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full opacity-20 animate-ping"></div>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">ابدأ البحث الآن</h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-lg max-w-md mx-auto leading-relaxed">
+                                اكتب اسم الطالب أو رقمه للحصول على النتائج فوراً
+                            </p>
+                            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl">
+                                    <div class="text-blue-600 text-2xl mb-2">⚡</div>
+                                    <div class="text-sm font-medium text-blue-800 dark:text-blue-300">بحث سريع</div>
+                                </div>
+                                <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl">
+                                    <div class="text-purple-600 text-2xl mb-2">🎯</div>
+                                    <div class="text-sm font-medium text-purple-800 dark:text-purple-300">نتائج دقيقة</div>
+                                </div>
+                                <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl">
+                                    <div class="text-green-600 text-2xl mb-2">📊</div>
+                                    <div class="text-sm font-medium text-green-800 dark:text-green-300">بيانات شاملة</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                     return;
                 }
 
-                // Group students by student ID or name
+                clearBtn.style.display = 'block';
+
+                const matches = students.filter(student => 
+                    performSearch(searchTerm, student.name, student.studentId)
+                );
+
+                // Enhanced counter with search stats
+                const totalStudentsFound = matches.length;
+                const uniqueStudents = [...new Set(matches.map(s => s.studentId))].length;
+                
+                if (totalStudentsFound > 0) {
+                    countDiv.innerHTML = `
+                        <div class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-2xl border border-green-200 dark:border-green-700 max-w-xl mx-auto">
+                            <div class="flex justify-center items-center gap-6 text-sm">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-600">${totalStudentsFound}</div>
+                                    <div class="text-gray-600 dark:text-gray-400">نتيجة موجودة</div>
+                                </div>
+                                ${uniqueStudents !== totalStudentsFound ? `
+                                    <div class="text-center border-r border-gray-300 dark:border-gray-600 pr-6">
+                                        <div class="text-2xl font-bold text-blue-600">${uniqueStudents}</div>
+                                        <div class="text-gray-600 dark:text-gray-400">طالب فريد</div>
+                                    </div>
+                                ` : ''}
+                                <div class="text-center">
+                                    <div class="text-lg">🎯</div>
+                                    <div class="text-xs text-gray-500">دقة عالية</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    countDiv.innerHTML = `
+                        <div class="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 p-4 rounded-2xl border border-red-200 dark:border-red-700 max-w-md mx-auto">
+                            <div class="text-center text-red-600 dark:text-red-400 font-medium">
+                                ❌ لا توجد نتائج مطابقة للبحث
+                            </div>
+                        </div>
+                    `;
+                }
+                countDiv.style.display = 'block';
+
+                if (matches.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="search-no-results max-w-2xl mx-auto">
+                            <div class="text-6xl mb-6">😔</div>
+                            <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">لم نجد أي طلاب</h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-lg mb-6">
+                                لم يتم العثور على طلاب يطابقون البحث 
+                                <span class="font-bold text-gray-700 dark:text-gray-300">"${searchTerm}"</span>
+                            </p>
+                            <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-200 dark:border-blue-700">
+                                <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-3">💡 نصائح للبحث:</h4>
+                                <ul class="text-right text-blue-700 dark:text-blue-300 space-y-2">
+                                    <li class="flex items-center gap-2">
+                                        <span class="text-blue-500">✓</span>
+                                        تأكد من الإملاء الصحيح للاسم
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <span class="text-blue-500">✓</span>
+                                        استخدم رقم الطالب الصحيح
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <span class="text-blue-500">✓</span>
+                                        تأكد أن الطالب مسجل في النظام
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <span class="text-blue-500">✓</span>
+                                        جرب البحث بجزء من الاسم
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Group students by student ID for enhanced display
                 const groupedStudents = {};
                 
                 matches.forEach(student => {
@@ -1112,76 +1818,67 @@
                     groupedStudents[key].totalAllRemaining += student.remainingFees || 0;
                 });
 
-                resultsDiv.innerHTML = Object.values(groupedStudents).map(studentGroup => {
-                    const hasMultipleYears = studentGroup.records.length > 1;
+                // Sort results by relevance (exact matches first, then partial matches)
+                const sortedResults = Object.values(groupedStudents).sort((a, b) => {
+                    const normalizedSearch = normalizeText(searchTerm);
+                    const aNameMatch = normalizeText(a.name).includes(normalizedSearch);
+                    const bNameMatch = normalizeText(b.name).includes(normalizedSearch);
+                    const aIdMatch = normalizeText(a.studentId).includes(normalizedSearch);
+                    const bIdMatch = normalizeText(b.studentId).includes(normalizedSearch);
                     
-                    let html = `
-                        <div class="bg-white dark:bg-gray-700 border rounded-lg p-4 mb-4 text-right">
-                            <div class="border-b border-gray-200 dark:border-gray-600 pb-3 mb-3">
-                                <h3 class="text-lg font-bold text-gray-800 dark:text-white">${studentGroup.name}</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-300">رقم الطالب: ${studentGroup.studentId}</p>
-                                ${hasMultipleYears ? `<p class="text-xs text-blue-600 dark:text-blue-400">مسجل في ${studentGroup.records.length} أعوام دراسية</p>` : ''}
+                    // Exact matches first
+                    if (aNameMatch && !bNameMatch) return -1;
+                    if (bNameMatch && !aNameMatch) return 1;
+                    if (aIdMatch && !bIdMatch) return -1;
+                    if (bIdMatch && !aIdMatch) return 1;
+                    
+                    // Then by name alphabetically
+                    return a.name.localeCompare(b.name, 'ar');
+                });
+
+                resultsDiv.innerHTML = sortedResults.map(studentGroup => 
+                    renderSearchResult(studentGroup, searchTerm)
+                ).join('');
+            }
+
+            // Clear quick search
+            window.clearQuickSearch = function() {
+                searchInput.value = '';
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                resultsDiv.innerHTML = `
+                    <div class="text-center py-20">
+                        <div class="relative">
+                            <div class="text-8xl mb-6 opacity-60 animate-pulse">🔍</div>
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full opacity-20 animate-ping"></div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">ابدأ البحث الآن</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-lg max-w-md mx-auto leading-relaxed">
+                            اكتب اسم الطالب أو رقمه للحصول على النتائج فوراً
+                        </p>
+                        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl">
+                                <div class="text-blue-600 text-2xl mb-2">⚡</div>
+                                <div class="text-sm font-medium text-blue-800 dark:text-blue-300">بحث سريع</div>
                             </div>
-                    `;
-
-                    if (hasMultipleYears) {
-                        // Show aggregated totals for multiple years
-                        html += `
-                            <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-3">
-                                <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-2">الإجمالي الكلي عبر جميع الأعوام:</h4>
-                                <div class="grid grid-cols-3 gap-2 text-sm">
-                                    <div>
-                                        <span class="text-gray-600 dark:text-gray-400">إجمالي الرسوم:</span>
-                                        <span class="font-bold text-gray-800 dark:text-white">${studentGroup.totalAllFees.toLocaleString()} د.إ</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600 dark:text-gray-400">إجمالي المسدد:</span>
-                                        <span class="font-bold text-green-600">${studentGroup.totalAllPaid.toLocaleString()} د.إ</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-600 dark:text-gray-400">إجمالي المتبقي:</span>
-                                        <span class="font-bold ${studentGroup.totalAllRemaining > 0 ? 'text-red-600' : 'text-green-600'}">${studentGroup.totalAllRemaining.toLocaleString()} د.إ</span>
-                                    </div>
-                                </div>
-                                <div class="mt-2">
-                                    <span class="text-gray-600 dark:text-gray-400">نسبة السداد الإجمالية:</span>
-                                    <span class="font-bold text-blue-600">${studentGroup.totalAllFees > 0 ? ((studentGroup.totalAllPaid / studentGroup.totalAllFees) * 100).toFixed(1) : 0}%</span>
-                                </div>
+                            <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl">
+                                <div class="text-purple-600 text-2xl mb-2">🎯</div>
+                                <div class="text-sm font-medium text-purple-800 dark:text-purple-300">نتائج دقيقة</div>
                             </div>
-                        `;
-                    }
-
-                    // Show details for each year
-                    html += `<div class="space-y-2">`;
-                    if (hasMultipleYears) {
-                        html += `<h4 class="font-semibold text-gray-700 dark:text-gray-300">تفاصيل كل عام:</h4>`;
-                    }
-
-                    studentGroup.records.forEach((student, index) => {
-                        html += `
-                            <div class="bg-gray-50 dark:bg-gray-600 p-3 rounded ${hasMultipleYears ? 'border-l-4 border-blue-400' : ''}">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-700 dark:text-gray-200">العام الدراسي: ${student.academicYear || '2024-2025'}</p>
-                                        <p class="text-sm text-gray-600 dark:text-gray-300">الصف: ${student.grade}</p>
-                                        <p class="text-sm text-gray-600 dark:text-gray-300">النقل: ${student.transport}</p>
-                                        ${student.notes ? `<p class="text-xs text-gray-500 dark:text-gray-400">ملاحظات: ${student.notes}</p>` : ''}
-                                    </div>
-                                    <div class="text-right text-sm">
-                                        <p class="text-gray-600 dark:text-gray-300">الرسوم: <span class="font-bold">${student.totalFees.toLocaleString()} د.إ</span></p>
-                                        <p class="text-gray-600 dark:text-gray-300">المسدد: <span class="font-bold text-green-600">${student.paidFees.toLocaleString()} د.إ</span></p>
-                                        <p class="text-gray-600 dark:text-gray-300">المتبقي: <span class="font-bold ${student.remainingFees > 0 ? 'text-red-600' : 'text-green-600'}">${student.remainingFees.toLocaleString()} د.إ</span></p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">نسبة السداد: ${student.totalFees > 0 ? ((student.paidFees / student.totalFees) * 100).toFixed(1) : 0}%</p>
-                                    </div>
-                                </div>
+                            <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl">
+                                <div class="text-green-600 text-2xl mb-2">📊</div>
+                                <div class="text-sm font-medium text-green-800 dark:text-green-300">بيانات شاملة</div>
                             </div>
-                        `;
-                    });
-
-                    html += `</div></div>`;
-                    return html;
-                }).join('');
+                        </div>
+                    </div>
+                `;
+                countDiv.style.display = 'none';
+                clearBtn.style.display = 'none';
             };
+
+            // Initial placeholder
+            window.clearQuickSearch();
         }
 
         // Generate reports
@@ -1263,96 +1960,6 @@
             `);
             printWindow.document.close();
             printWindow.print();
-        }
-
-        // Backup data from Firebase
-        async function backupDataFromFirebase() {
-            const btn = document.getElementById('backupBtn');
-            btn.innerHTML = 'جاري النسخ... <div class="loading"></div>';
-            btn.disabled = true;
-
-            try {
-                await loadStudentsFromFirebase();
-                
-                const backup = {
-                    students: students,
-                    exportDate: new Date().toISOString(),
-                    version: '2.0-firebase',
-                    source: 'firebase'
-                };
-
-                const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `backup_firebase_students_${new Date().toLocaleDateString('ar-EG')}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-
-                showAlert('تم إنشاء النسخة الاحتياطية بنجاح');
-            } catch (error) {
-                showAlert('فشل في إنشاء النسخة الاحتياطية: ' + error.message);
-            } finally {
-                btn.innerHTML = 'نسخ احتياطي من Firebase';
-                btn.disabled = false;
-            }
-        }
-
-        // Sync local data to Firebase
-        async function syncLocalToFirebase() {
-            const btn = document.getElementById('syncBtn');
-            btn.innerHTML = 'جاري المزامنة... <div class="loading"></div>';
-            btn.disabled = true;
-
-            try {
-                const localStudents = JSON.parse(localStorage.getItem('studentsData')) || [];
-                let syncedCount = 0;
-                let errorCount = 0;
-
-                for (const student of localStudents) {
-                    if (!student.firebaseId) {
-                        try {
-                            const firebaseId = await saveStudentToFirebase(student);
-                            student.firebaseId = firebaseId;
-                            syncedCount++;
-                        } catch (error) {
-                            errorCount++;
-                            console.error('Error syncing student:', student.name, error);
-                        }
-                    }
-                }
-
-                localStorage.setItem('studentsData', JSON.stringify(localStudents));
-                students = localStudents;
-
-                showAlert(`تمت المزامنة: ${syncedCount} طالب. أخطاء: ${errorCount}`);
-            } catch (error) {
-                showAlert('فشل في المزامنة: ' + error.message);
-            } finally {
-                btn.innerHTML = 'مزامنة البيانات المحلية مع Firebase';
-                btn.disabled = false;
-            }
-        }
-
-        // Clear all Firebase data
-        async function clearAllFirebaseData() {
-            try {
-                const { collection, getDocs } = window.firebaseModules;
-                const querySnapshot = await getDocs(collection(db, 'students'));
-                
-                const deletePromises = [];
-                querySnapshot.forEach((doc) => {
-                    deletePromises.push(deleteStudentFromFirebase(doc.id));
-                });
-
-                await Promise.all(deletePromises);
-                
-                students = [];
-                localStorage.removeItem('studentsData');
-                showAlert('تم مسح جميع البيانات من Firebase بنجاح');
-            } catch (error) {
-                showAlert('فشل في مسح البيانات من Firebase: ' + error.message);
-            }
         }
 
         // Custom modal functions
