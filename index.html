@@ -458,6 +458,47 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
+
+        /* Pagination styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .pagination-btn.active {
+            background: linear-gradient(135deg, #5D5CDE, #059669);
+            color: white;
+            border-color: #5D5CDE;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            margin: 0 16px;
+            color: #6b7280;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -654,7 +695,7 @@
             </div>
         </div>
 
-        <!-- Enhanced Students Screen -->
+        <!-- Enhanced Students Screen with Clear All and Pagination -->
         <div id="studentsScreen" class="hidden">
             <div class="professional-card rounded-lg shadow-md p-6">
                 <div class="flex items-center justify-between mb-6">
@@ -664,6 +705,7 @@
                     </div>
                     <div class="flex space-x-reverse space-x-2">
                         <button onclick="exportToExcel()" class="bg-secondary hover:bg-green-700 text-white px-4 py-2 rounded">تصدير Excel</button>
+                        <button onclick="clearAllData()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">🗑️ مسح جميع البيانات</button>
                         <button onclick="loadStudentsFromFirebase()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" id="refreshBtn">
                             تحديث البيانات
                         </button>
@@ -691,6 +733,12 @@
                             <option value="مسدد">مسدد بالكامل</option>
                             <option value="متبقي">يوجد متبقي</option>
                         </select>
+                        <select id="itemsPerPage" class="px-3 py-2 text-base border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="10">10 صفوف لكل صفحة</option>
+                            <option value="25">25 صف لكل صفحة</option>
+                            <option value="50">50 صف لكل صفحة</option>
+                            <option value="100">100 صف لكل صفحة</option>
+                        </select>
                         <button onclick="clearAllFilters()" class="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg">مسح الفلاتر</button>
                     </div>
                     
@@ -716,6 +764,16 @@
                         <tbody id="studentsTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button id="prevBtn" class="pagination-btn">← السابق</button>
+                    <div id="pageNumbers" class="flex gap-2"></div>
+                    <button id="nextBtn" class="pagination-btn">التالي →</button>
+                    <div class="pagination-info">
+                        <span id="paginationInfo">عرض 0-0 من 0</span>
+                    </div>
                 </div>
                 
                 <!-- Enhanced Statistics Cards -->
@@ -869,6 +927,11 @@
         let firebaseApp = null;
         let db = null;
         let students = [];
+        
+        // Pagination variables
+        let currentPage = 1;
+        let itemsPerPage = 25;
+        let filteredStudents = [];
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -878,8 +941,80 @@
             storageBucket: "foozapp-30474.firebasestorage.app",
             messagingSenderId: "106715283452",
             appId: "1:106715283452:web:ee255a969cabc0d34ebc79"
-            
         };
+
+        // Clear all data function
+        async function clearAllData() {
+            if (students.length === 0) {
+                showAlert('لا توجد بيانات لمسحها');
+                return;
+            }
+
+            showConfirmDialog(
+                `هل أنت متأكد من مسح جميع البيانات؟\nسيتم مسح ${students.length} سجل من قاعدة البيانات.\n\nهذا الإجراء لا يمكن التراجع عنه!`, 
+                async () => {
+                    try {
+                        // Show loading state
+                        const clearBtn = document.querySelector('[onclick="clearAllData()"]');
+                        if (clearBtn) {
+                            clearBtn.innerHTML = 'جاري المسح... <div class="loading"></div>';
+                            clearBtn.disabled = true;
+                        }
+
+                        let deletedFromFirebase = 0;
+                        let firebaseErrors = 0;
+
+                        // Delete from Firebase first
+                        if (db) {
+                            for (const student of students) {
+                                if (student.firebaseId) {
+                                    try {
+                                        await deleteStudentFromFirebase(student.firebaseId);
+                                        deletedFromFirebase++;
+                                    } catch (error) {
+                                        console.error('Firebase deletion error:', error);
+                                        firebaseErrors++;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Clear local data
+                        students = [];
+                        filteredStudents = [];
+                        localStorage.removeItem('studentsData');
+                        
+                        // Reset pagination
+                        currentPage = 1;
+                        
+                        // Refresh the table and statistics
+                        loadStudentsTable();
+
+                        // Show success message
+                        let message = `تم مسح جميع البيانات بنجاح!`;
+                        if (deletedFromFirebase > 0) {
+                            message += `\nتم مسح ${deletedFromFirebase} سجل من Firebase`;
+                        }
+                        if (firebaseErrors > 0) {
+                            message += `\nتعذر مسح ${firebaseErrors} سجل من Firebase (تم مسحها محلياً)`;
+                        }
+                        
+                        showAlert(message);
+                        
+                    } catch (error) {
+                        console.error('Error clearing data:', error);
+                        showAlert('حدث خطأ أثناء مسح البيانات: ' + error.message);
+                    } finally {
+                        // Restore button state
+                        const clearBtn = document.querySelector('[onclick="clearAllData()"]');
+                        if (clearBtn) {
+                            clearBtn.innerHTML = '🗑️ مسح جميع البيانات';
+                            clearBtn.disabled = false;
+                        }
+                    }
+                }
+            );
+        }
 
         // Enhanced animated counter function
         function animateCounter(element, start, end, duration = 1000) {
@@ -901,6 +1036,109 @@
                 const displayNumber = Math.floor(current).toLocaleString();
                 element.textContent = element.textContent.replace(/[\d,]+/, displayNumber);
             }, 16);
+        }
+
+        // Pagination functions
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+            const pageNumbersDiv = document.getElementById('pageNumbers');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const paginationInfo = document.getElementById('paginationInfo');
+
+            // Update pagination info
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, filteredStudents.length);
+            paginationInfo.textContent = `عرض ${startItem}-${endItem} من ${filteredStudents.length}`;
+
+            // Update prev/next buttons
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+
+            if (currentPage <= 1) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            if (currentPage >= totalPages) {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            // Render page numbers
+            pageNumbersDiv.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // First page
+            if (startPage > 1) {
+                const firstBtn = createPageButton(1);
+                pageNumbersDiv.appendChild(firstBtn);
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'px-2 text-gray-500';
+                    pageNumbersDiv.appendChild(ellipsis);
+                }
+            }
+
+            // Visible pages
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = createPageButton(i);
+                pageNumbersDiv.appendChild(pageBtn);
+            }
+
+            // Last page
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'px-2 text-gray-500';
+                    pageNumbersDiv.appendChild(ellipsis);
+                }
+                const lastBtn = createPageButton(totalPages);
+                pageNumbersDiv.appendChild(lastBtn);
+            }
+        }
+
+        function createPageButton(pageNum) {
+            const button = document.createElement('button');
+            button.textContent = pageNum;
+            button.className = `pagination-btn ${currentPage === pageNum ? 'active' : ''}`;
+            button.onclick = () => goToPage(pageNum);
+            return button;
+        }
+
+        function goToPage(pageNum) {
+            const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+            if (pageNum < 1 || pageNum > totalPages) return;
+            
+            currentPage = pageNum;
+            renderStudentsTable();
+            renderPagination();
+        }
+
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                goToPage(currentPage - 1);
+            }
+        }
+
+        function goToNextPage() {
+            const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                goToPage(currentPage + 1);
+            }
         }
 
         // Enhanced chunk processing for large Excel files
@@ -1347,6 +1585,9 @@
                     }
                 });
 
+                // Reset pagination when data changes
+                currentPage = 1;
+
                 // Refresh current screen if on students or search screen
                 const currentScreen = getCurrentScreen();
                 if (currentScreen === 'studentsScreen') {
@@ -1360,6 +1601,9 @@
                 console.error('Error loading students from Firebase:', error);
                 // Fallback to localStorage
                 students = JSON.parse(localStorage.getItem('studentsData')) || [];
+                
+                // Reset pagination
+                currentPage = 1;
                 
                 // Refresh current screen
                 const currentScreen = getCurrentScreen();
@@ -1512,12 +1756,71 @@
             document.getElementById('remainingFees').value = '';
         }
 
-        // Enhanced load students table with improved performance and design
+        // Enhanced load students table with improved performance and pagination
         function loadStudentsTable() {
+            // Apply filters first
+            applyFilters();
+            
+            // Render the table
+            renderStudentsTable();
+            
+            // Render pagination
+            renderPagination();
+            
+            // Update filters and statistics
+            updateFilters();
+            updateStudentsStats();
+            setupTableFilters();
+            
+            // Update animated counter
+            const counterDisplay = document.getElementById('studentCountDisplay');
+            if (counterDisplay) {
+                const currentCount = parseInt(counterDisplay.textContent.match(/\d+/) || 0);
+                const newCount = students.length;
+                
+                if (currentCount !== newCount) {
+                    animateCounter(counterDisplay, currentCount, newCount, 800);
+                }
+            }
+        }
+
+        // Apply filters to get filtered students
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput')?.value || '';
+            const selectedYear = document.getElementById('yearFilter')?.value || '';
+            const selectedGrade = document.getElementById('gradeFilter')?.value || '';
+            const selectedPayment = document.getElementById('paymentFilter')?.value || '';
+
+            filteredStudents = students.filter(student => {
+                // Search filter
+                const matchesSearch = performSearch(searchTerm, student.name, student.studentId);
+                
+                // Year filter
+                const matchesYear = !selectedYear || (student.academicYear || '2024-2025') === selectedYear;
+                
+                // Grade filter
+                const matchesGrade = !selectedGrade || student.grade === selectedGrade;
+                
+                // Payment filter
+                const matchesPayment = !selectedPayment || 
+                    (selectedPayment === 'مسدد' && student.remainingFees <= 0) ||
+                    (selectedPayment === 'متبقي' && student.remainingFees > 0);
+
+                return matchesSearch && matchesYear && matchesGrade && matchesPayment;
+            });
+        }
+
+        // Render students table for current page
+        function renderStudentsTable() {
             const tbody = document.getElementById('studentsTableBody');
             tbody.innerHTML = '';
 
-            students.forEach((student, index) => {
+            // Get current page items
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageStudents = filteredStudents.slice(startIndex, endIndex);
+
+            pageStudents.forEach((student, index) => {
                 const row = tbody.insertRow();
                 row.className = 'table-row hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200';
                 
@@ -1554,23 +1857,8 @@
                 `;
             });
 
-            // Update filters
-            updateFilters();
-            // Update statistics with animation
-            updateStudentsStats();
-            // Setup table filters
-            setupTableFilters();
-            
-            // Update animated counter
-            const counterDisplay = document.getElementById('studentCountDisplay');
-            if (counterDisplay) {
-                const currentCount = parseInt(counterDisplay.textContent.match(/\d+/) || 0);
-                const newCount = students.length;
-                
-                if (currentCount !== newCount) {
-                    animateCounter(counterDisplay, currentCount, newCount, 800);
-                }
-            }
+            // Update search results count
+            updateSearchResultsCount(filteredStudents.length);
         }
 
         // Update filters (years, grades)
@@ -1578,22 +1866,26 @@
             // Update year filter
             const yearFilter = document.getElementById('yearFilter');
             const years = [...new Set(students.map(s => s.academicYear).filter(y => y))];
-            const currentYearValue = yearFilter.value;
-            yearFilter.innerHTML = '<option value="">جميع الأعوام</option>';
-            years.forEach(year => {
-                const selected = year === currentYearValue ? 'selected' : '';
-                yearFilter.innerHTML += `<option value="${year}" ${selected}>${year}</option>`;
-            });
+            const currentYearValue = yearFilter?.value || '';
+            if (yearFilter) {
+                yearFilter.innerHTML = '<option value="">جميع الأعوام</option>';
+                years.forEach(year => {
+                    const selected = year === currentYearValue ? 'selected' : '';
+                    yearFilter.innerHTML += `<option value="${year}" ${selected}>${year}</option>`;
+                });
+            }
 
             // Update grade filter
             const gradeFilter = document.getElementById('gradeFilter');
             const grades = [...new Set(students.map(s => s.grade))];
-            const currentGradeValue = gradeFilter.value;
-            gradeFilter.innerHTML = '<option value="">جميع الصفوف</option>';
-            grades.forEach(grade => {
-                const selected = grade === currentGradeValue ? 'selected' : '';
-                gradeFilter.innerHTML += `<option value="${grade}" ${selected}>${grade}</option>`;
-            });
+            const currentGradeValue = gradeFilter?.value || '';
+            if (gradeFilter) {
+                gradeFilter.innerHTML = '<option value="">جميع الصفوف</option>';
+                grades.forEach(grade => {
+                    const selected = grade === currentGradeValue ? 'selected' : '';
+                    gradeFilter.innerHTML += `<option value="${grade}" ${selected}>${grade}</option>`;
+                });
+            }
         }
 
         // Enhanced update students statistics with animations
@@ -1627,126 +1919,89 @@
             }
         }
 
-        // Setup table filters with improved search
+        // Setup table filters with improved search and pagination
         function setupTableFilters() {
             const searchInput = document.getElementById('searchInput');
             const yearFilter = document.getElementById('yearFilter');
             const gradeFilter = document.getElementById('gradeFilter');
             const paymentFilter = document.getElementById('paymentFilter');
+            const itemsPerPageSelect = document.getElementById('itemsPerPage');
             const clearSearchBtn = document.getElementById('clearSearchBtn');
 
-            // Remove existing event listeners by cloning elements
-            function resetElement(element) {
-                const newElement = element.cloneNode(true);
-                element.parentNode.replaceChild(newElement, element);
-                return newElement;
-            }
-
-            const newSearchInput = resetElement(searchInput);
-            const newYearFilter = resetElement(yearFilter);
-            const newGradeFilter = resetElement(gradeFilter);
-            const newPaymentFilter = resetElement(paymentFilter);
-
-            function filterTable() {
-                const searchTerm = document.getElementById('searchInput').value;
-                const selectedYear = document.getElementById('yearFilter').value;
-                const selectedGrade = document.getElementById('gradeFilter').value;
-                const selectedPayment = document.getElementById('paymentFilter').value;
-
-                const rows = document.getElementById('studentsTableBody').getElementsByTagName('tr');
-                let visibleCount = 0;
+            // Function to apply filters and refresh table
+            function filterAndRefresh() {
+                currentPage = 1; // Reset to first page when filtering
+                applyFilters();
+                renderStudentsTable();
+                renderPagination();
                 
-                Array.from(rows).forEach(row => {
-                    const year = row.cells[0].textContent.trim();
-                    const studentIdCell = row.cells[1];
-                    const studentNameCell = row.cells[2];
-                    const studentId = studentIdCell.getAttribute('data-original-text') || studentIdCell.textContent.trim();
-                    const studentName = studentNameCell.getAttribute('data-original-text') || studentNameCell.textContent.trim();
-                    const grade = row.cells[3].textContent.trim();
-                    const remainingText = row.cells[7].textContent.replace(/[^\d.-]/g, '');
-                    const remaining = parseFloat(remainingText) || 0;
-
-                    // Store original text if not already stored
-                    if (!studentIdCell.getAttribute('data-original-text')) {
-                        studentIdCell.setAttribute('data-original-text', studentId);
-                    }
-                    if (!studentNameCell.getAttribute('data-original-text')) {
-                        studentNameCell.setAttribute('data-original-text', studentName);
-                    }
-
-                    // Enhanced search matching
-                    const matchesSearch = performSearch(searchTerm, studentName, studentId);
-                    const matchesYear = !selectedYear || year === selectedYear;
-                    const matchesGrade = !selectedGrade || grade === selectedGrade;
-                    const matchesPayment = !selectedPayment || 
-                        (selectedPayment === 'مسدد' && remaining === 0) ||
-                        (selectedPayment === 'متبقي' && remaining > 0);
-
-                    if (matchesSearch && matchesYear && matchesGrade && matchesPayment) {
-                        row.style.display = '';
-                        visibleCount++;
-                        
-                        // Highlight search terms in visible rows
-                        if (searchTerm.trim()) {
-                            const highlightedId = highlightSearchTerms(studentId, searchTerm);
-                            const highlightedName = highlightSearchTerms(studentName, searchTerm);
-                            
-                            // Only update if highlighting is needed
-                            if (highlightedId !== studentId) {
-                                studentIdCell.innerHTML = highlightedId;
-                            }
-                            if (highlightedName !== studentName) {
-                                studentNameCell.innerHTML = highlightedName;
-                            }
-                        } else {
-                            // Restore original text when no search
-                            studentIdCell.textContent = studentId;
-                            studentNameCell.textContent = studentName;
-                        }
-                    } else {
-                        row.style.display = 'none';
-                        // Reset to original text for hidden rows
-                        studentIdCell.textContent = studentId;
-                        studentNameCell.textContent = studentName;
-                    }
-                });
-
-                // Update search results count
-                updateSearchResultsCount(visibleCount);
-                
-                // Show/hide clear button
-                const clearBtn = document.getElementById('clearSearchBtn');
-                if (searchTerm.trim()) {
-                    clearBtn.style.display = 'block';
-                } else {
-                    clearBtn.style.display = 'none';
-                    // Reset all highlighting when search is cleared
-                    Array.from(rows).forEach(row => {
-                        const studentIdCell = row.cells[1];
-                        const studentNameCell = row.cells[2];
-                        const originalId = studentIdCell.getAttribute('data-original-text');
-                        const originalName = studentNameCell.getAttribute('data-original-text');
-                        
-                        if (originalId) studentIdCell.textContent = originalId;
-                        if (originalName) studentNameCell.textContent = originalName;
-                    });
+                // Show/hide clear search button
+                const searchTerm = searchInput?.value || '';
+                if (clearSearchBtn) {
+                    clearSearchBtn.style.display = searchTerm.trim() ? 'block' : 'none';
                 }
             }
 
-            // Add event listeners
-            document.getElementById('searchInput').addEventListener('input', filterTable);
-            document.getElementById('yearFilter').addEventListener('change', filterTable);
-            document.getElementById('gradeFilter').addEventListener('change', filterTable);
-            document.getElementById('paymentFilter').addEventListener('change', filterTable);
+            // Remove existing event listeners and add new ones
+            if (searchInput) {
+                const newSearchInput = searchInput.cloneNode(true);
+                searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+                newSearchInput.addEventListener('input', filterAndRefresh);
+            }
 
-            // Clear search
+            if (yearFilter) {
+                const newYearFilter = yearFilter.cloneNode(true);
+                yearFilter.parentNode.replaceChild(newYearFilter, yearFilter);
+                newYearFilter.addEventListener('change', filterAndRefresh);
+            }
+
+            if (gradeFilter) {
+                const newGradeFilter = gradeFilter.cloneNode(true);
+                gradeFilter.parentNode.replaceChild(newGradeFilter, gradeFilter);
+                newGradeFilter.addEventListener('change', filterAndRefresh);
+            }
+
+            if (paymentFilter) {
+                const newPaymentFilter = paymentFilter.cloneNode(true);
+                paymentFilter.parentNode.replaceChild(newPaymentFilter, paymentFilter);
+                newPaymentFilter.addEventListener('change', filterAndRefresh);
+            }
+
+            if (itemsPerPageSelect) {
+                const newItemsPerPageSelect = itemsPerPageSelect.cloneNode(true);
+                itemsPerPageSelect.parentNode.replaceChild(newItemsPerPageSelect, itemsPerPageSelect);
+                newItemsPerPageSelect.addEventListener('change', (e) => {
+                    itemsPerPage = parseInt(e.target.value);
+                    currentPage = 1; // Reset to first page
+                    renderStudentsTable();
+                    renderPagination();
+                });
+            }
+
+            // Setup pagination buttons
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (prevBtn) {
+                const newPrevBtn = prevBtn.cloneNode(true);
+                prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+                newPrevBtn.addEventListener('click', goToPrevPage);
+            }
+
+            if (nextBtn) {
+                const newNextBtn = nextBtn.cloneNode(true);
+                nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+                newNextBtn.addEventListener('click', goToNextPage);
+            }
+
+            // Clear search function
             window.clearSearch = function() {
                 document.getElementById('searchInput').value = '';
-                filterTable();
+                filterAndRefresh();
             };
 
             // Initial filter
-            filterTable();
+            filterAndRefresh();
         }
 
         // Update search results count
@@ -1755,23 +2010,32 @@
             const searchInput = document.getElementById('searchInput');
             
             if (searchInput && searchInput.value.trim()) {
-                countElement.textContent = `تم العثور على ${count} نتيجة`;
-                countElement.style.display = 'block';
+                if (countElement) {
+                    countElement.textContent = `تم العثور على ${count} نتيجة`;
+                    countElement.style.display = 'block';
+                }
             } else {
-                countElement.style.display = 'none';
+                if (countElement) {
+                    countElement.style.display = 'none';
+                }
             }
         }
 
         // Clear all filters
         function clearAllFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('yearFilter').value = '';
-            document.getElementById('gradeFilter').value = '';
-            document.getElementById('paymentFilter').value = '';
+            const inputs = ['searchInput', 'yearFilter', 'gradeFilter', 'paymentFilter'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
             
-            // Trigger filter update
-            const event = new Event('input', { bubbles: true });
-            document.getElementById('searchInput').dispatchEvent(event);
+            // Reset pagination
+            currentPage = 1;
+            
+            // Apply filters and refresh
+            applyFilters();
+            renderStudentsTable();
+            renderPagination();
         }
 
         // Delete student
@@ -1786,6 +2050,12 @@
 
                     students = students.filter(s => (s.firebaseId || s.id).toString() !== id.toString());
                     localStorage.setItem('studentsData', JSON.stringify(students));
+                    
+                    // Reset pagination if current page becomes empty
+                    const totalPages = Math.ceil(students.length / itemsPerPage);
+                    if (currentPage > totalPages && totalPages > 0) {
+                        currentPage = totalPages;
+                    }
                     
                     // Refresh current screen
                     const currentScreen = getCurrentScreen();
