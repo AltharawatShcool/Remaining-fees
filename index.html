@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام متابعة الرسوم الدراسية - نسخة احترافية</title>
+    <title>نظام متابعة الرسوم الدراسية - نسخة احترافية متطورة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         
         window.firebaseModules = {
             initializeApp,
@@ -22,7 +22,8 @@
             updateDoc,
             deleteDoc,
             query,
-            orderBy
+            orderBy,
+            writeBatch
         };
     </script>
     
@@ -244,6 +245,11 @@
             transform: translateX(-4px);
         }
 
+        .table-row.selected {
+            background: rgba(93, 92, 222, 0.15) !important;
+            border-left: 4px solid #5D5CDE;
+        }
+
         .payment-status-complete {
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
@@ -451,7 +457,6 @@
             border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* تحسينات للعناصر التفاعلية */
         .interactive-icon {
             transition: all 0.3s ease;
             cursor: pointer;
@@ -462,7 +467,6 @@
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
         }
 
-        /* تأثيرات للنصوص المهمة */
         .highlight-text {
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
             -webkit-background-clip: text;
@@ -471,7 +475,6 @@
             font-weight: 700;
         }
 
-        /* تحسين شكل الجداول */
         .modern-table {
             border-collapse: separate;
             border-spacing: 0;
@@ -495,6 +498,69 @@
         .dark .modern-table td {
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
+
+        /* Enhanced delete progress styles */
+        .delete-progress-container {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border: 2px solid #ef4444;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 24px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .selected-count-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .bulk-actions-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+            backdrop-filter: blur(20px);
+            border: 2px solid #5D5CDE;
+            border-radius: 20px;
+            padding: 16px 24px;
+            box-shadow: 0 10px 30px rgba(93, 92, 222, 0.3);
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .dark .bulk-actions-bar {
+            background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(17,24,39,0.9));
+            border-color: #5D5CDE;
+        }
+
+        .bulk-actions-bar.show {
+            display: flex;
+            animation: slideUpFromBottom 0.4s ease-out;
+        }
+
+        @keyframes slideUpFromBottom {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -511,7 +577,7 @@
                     <div class="school-logo interactive-icon">ث.و</div>
                     <div>
                         <h1 class="text-2xl font-bold text-gray-800 dark:text-white highlight-text">مدرسة الثروات الوطنية الخاصة</h1>
-                        <p class="text-lg text-gray-600 dark:text-gray-300 mt-2">نظام إدارة الرسوم الدراسية المتطور</p>
+                        <p class="text-lg text-gray-600 dark:text-gray-300 mt-2">نظام إدارة الرسوم الدراسية المتطور - نسخة فائقة السرعة</p>
                     </div>
                 </div>
                 <div class="text-lg font-semibold text-gray-600 dark:text-gray-400">
@@ -532,7 +598,7 @@
                 <h2 class="text-4xl font-bold text-gray-800 dark:text-white mb-6 highlight-text">نظام إدارة الرسوم الدراسية</h2>
                 <p class="text-xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed">
                     منصة متطورة لإدارة البيانات المالية للطلاب<br>
-                    مع تكامل Firebase وتجربة مستخدم احترافية
+                    مع تكامل Firebase وحذف فائق السرعة ⚡
                 </p>
                 <button onclick="showMainScreen()" class="premium-button text-xl px-12 py-4">
                     🚀 ابدأ الآن
@@ -557,8 +623,8 @@
                 
                 <button onclick="showStudentsScreen()" class="premium-card p-8 text-center group">
                     <div class="text-6xl mb-6 interactive-icon">📋</div>
-                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">إدارة البيانات</h3>
-                    <p class="text-gray-600 dark:text-gray-300">عرض وتحرير سجلات الطلاب</p>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">إدارة البيانات المتطورة</h3>
+                    <p class="text-gray-600 dark:text-gray-300">عرض وتحرير وحذف سريع للسجلات</p>
                 </button>
                 
                 <button onclick="showSearchScreen()" class="premium-card p-8 text-center group">
@@ -737,7 +803,7 @@
             <div class="premium-card p-8">
                 <div class="flex flex-wrap items-center justify-between mb-8 gap-4">
                     <div class="flex items-center gap-6">
-                        <h2 class="text-3xl font-bold text-gray-800 dark:text-white highlight-text">إدارة بيانات الطلاب</h2>
+                        <h2 class="text-3xl font-bold text-gray-800 dark:text-white highlight-text">إدارة بيانات الطلاب المتطورة</h2>
                         <div class="bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 px-4 py-2 rounded-xl">
                             <span class="text-2xl font-bold" id="studentCountDisplay">0</span>
                             <span class="text-sm text-gray-600 dark:text-gray-400">طالب</span>
@@ -745,9 +811,30 @@
                     </div>
                     <div class="flex flex-wrap gap-3">
                         <button onclick="exportToExcel()" class="premium-button bg-gradient-to-r from-green-500 to-green-600">📥 تصدير Excel</button>
-                        <button onclick="clearAllData()" class="premium-button bg-gradient-to-r from-red-500 to-red-600">🗑️ مسح الكل</button>
+                        <button onclick="ultraFastClearAll()" class="premium-button bg-gradient-to-r from-red-500 to-red-600">🚀 مسح سريع للكل</button>
                         <button onclick="loadStudentsFromFirebase()" class="premium-button bg-gradient-to-r from-blue-500 to-blue-600" id="refreshBtn">🔄 تحديث</button>
                         <button onclick="showMainScreen()" class="premium-button bg-gradient-to-r from-gray-500 to-gray-600">⬅️ عودة</button>
+                    </div>
+                </div>
+
+                <!-- Selection Controls -->
+                <div id="selectionControls" class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900 p-4 rounded-2xl mb-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <span class="text-lg font-bold text-gray-700 dark:text-gray-300">🎯 اختيار متقدم:</span>
+                            <button onclick="selectAllVisible()" class="premium-button bg-gradient-to-r from-blue-400 to-blue-500 text-sm py-2 px-4">
+                                ✅ اختيار الكل
+                            </button>
+                            <button onclick="clearAllSelections()" class="premium-button bg-gradient-to-r from-gray-400 to-gray-500 text-sm py-2 px-4">
+                                ❌ إلغاء الاختيار
+                            </button>
+                            <button onclick="invertSelection()" class="premium-button bg-gradient-to-r from-purple-400 to-purple-500 text-sm py-2 px-4">
+                                🔄 عكس الاختيار
+                            </button>
+                        </div>
+                        <div id="selectedCountDisplay" class="selected-count-badge" style="display: none;">
+                            <span id="selectedCount">0</span> طالب محدد
+                        </div>
                     </div>
                 </div>
                 
@@ -792,6 +879,9 @@
                     <table class="modern-table w-full">
                         <thead>
                             <tr class="table-header">
+                                <th class="text-right w-16">
+                                    <input type="checkbox" id="selectAllCheckbox" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" onchange="toggleSelectAll(this)">
+                                </th>
                                 <th class="text-right">العام الدراسي</th>
                                 <th class="text-right">رقم الطالب</th>
                                 <th class="text-right">الاسم</th>
@@ -920,6 +1010,24 @@
         </div>
     </main>
 
+    <!-- Floating Action Bar for Bulk Operations -->
+    <div id="bulkActionsBar" class="bulk-actions-bar">
+        <div class="flex items-center gap-4">
+            <span class="text-lg font-bold text-gray-700 dark:text-gray-300">
+                <span id="bulkSelectedCount">0</span> طالب محدد
+            </span>
+            <button onclick="ultraFastDeleteSelected()" class="premium-button bg-gradient-to-r from-red-500 to-red-600 text-sm py-2 px-4">
+                🚀 حذف سريع
+            </button>
+            <button onclick="exportSelected()" class="premium-button bg-gradient-to-r from-green-500 to-green-600 text-sm py-2 px-4">
+                📤 تصدير المحدد
+            </button>
+            <button onclick="clearAllSelections()" class="premium-button bg-gradient-to-r from-gray-400 to-gray-500 text-sm py-2 px-4">
+                ❌ إلغاء
+            </button>
+        </div>
+    </div>
+
     <!-- Enhanced Footer -->
     <footer class="glass-effect shadow-2xl mt-20">
         <div class="container mx-auto px-6 py-8 text-center">
@@ -929,13 +1037,13 @@
                 </p>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     © 2025 جميع الحقوق محفوظة لمدرسة الثروات الوطنية | 
-                    <span class="highlight-text">Firebase النسخة المتطورة 3.0</span>
+                    <span class="highlight-text">نسخة فائقة السرعة مع حذف مطور 4.0</span>
                 </p>
             </div>
             <div class="flex justify-center gap-4 text-2xl">
                 <span class="interactive-icon">🚀</span>
                 <span class="interactive-icon">💻</span>
-                <span class="interactive-icon">⭐</span>
+                <span class="interactive-icon">⚡</span>
             </div>
         </div>
     </footer>
@@ -947,6 +1055,39 @@
             <div class="flex justify-end gap-4">
                 <button id="modalCancel" class="premium-button bg-gradient-to-r from-gray-500 to-gray-600">إلغاء</button>
                 <button id="modalConfirm" class="premium-button bg-gradient-to-r from-red-500 to-red-600">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Delete Progress Modal -->
+    <div id="deleteProgressModal" class="fixed inset-0 professional-modal flex items-center justify-center z-50 hidden">
+        <div class="modal-content p-8 rounded-3xl max-w-lg w-full mx-4">
+            <div id="deleteProgress" class="delete-progress-container">
+                <h4 class="text-2xl font-bold text-red-800 dark:text-red-200 mb-6 text-center">🚀 حذف فائق السرعة جاري...</h4>
+                <div class="progress-bar-container">
+                    <div id="deleteProgressFill" class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-red-700 dark:text-red-300 text-center">
+                    <div>
+                        <div class="text-2xl font-bold" id="deleteCurrentChunk">0</div>
+                        <div class="text-sm">دفعة حالية</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold" id="deleteTotalChunks">0</div>
+                        <div class="text-sm">إجمالي الدفع</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold" id="deletedCount">0</div>
+                        <div class="text-sm">تم الحذف</div>
+                    </div>
+                    <div>
+                        <div class="text-xl font-bold" id="deleteSpeed">0</div>
+                        <div class="text-sm">حذف/ثانية</div>
+                    </div>
+                </div>
+                <div class="text-center mt-6">
+                    <p class="text-red-600 dark:text-red-400 font-bold text-lg" id="deleteStatusText">جاري حذف البيانات بأقصى سرعة...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -971,6 +1112,7 @@
         let currentPage = 1;
         let itemsPerPage = 25;
         let filteredStudents = [];
+        let selectedStudents = new Set();
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -1087,6 +1229,7 @@
         function showStudentsScreen() { 
             showScreen('studentsScreen'); 
             loadStudentsTable();
+            clearAllSelections();
         }
         function showSearchScreen() { 
             showScreen('searchScreen'); 
@@ -1357,6 +1500,27 @@
             await deleteDoc(doc(db, 'students', firebaseId));
         }
 
+        // Enhanced ultra-fast batch delete function
+        async function deleteMultipleStudentsFromFirebase(firebaseIds) {
+            if (!db || firebaseIds.length === 0) return 0;
+
+            try {
+                const { writeBatch, doc } = window.firebaseModules;
+                const batch = writeBatch(db);
+
+                firebaseIds.forEach(id => {
+                    const docRef = doc(db, 'students', id);
+                    batch.delete(docRef);
+                });
+
+                await batch.commit();
+                return firebaseIds.length;
+            } catch (error) {
+                console.error('Batch delete error:', error);
+                return 0;
+            }
+        }
+
         async function loadStudentsFromFirebase() {
             if (!db) {
                 showAlert('❌ Firebase غير متصل');
@@ -1391,6 +1555,7 @@
                 });
 
                 currentPage = 1;
+                clearAllSelections();
 
                 const currentScreen = getCurrentScreen();
                 if (currentScreen === 'studentsScreen') {
@@ -1404,6 +1569,7 @@
                 console.error('Error loading students from Firebase:', error);
                 students = JSON.parse(localStorage.getItem('studentsData')) || [];
                 currentPage = 1;
+                clearAllSelections();
                 
                 const currentScreen = getCurrentScreen();
                 if (currentScreen === 'studentsScreen') {
@@ -1429,6 +1595,7 @@
             updateFilters();
             updateStudentsStats();
             setupTableFilters();
+            updateSelectionDisplay();
             
             const counterDisplay = document.getElementById('studentCountDisplay');
             if (counterDisplay) {
@@ -1466,6 +1633,11 @@
                 const row = tbody.insertRow();
                 row.className = 'table-row';
                 
+                const studentKey = student.firebaseId || student.id;
+                if (selectedStudents.has(studentKey.toString())) {
+                    row.classList.add('selected');
+                }
+                
                 // Enhanced display with flexible formatting
                 const transportDisplay = student.transport || 'غير محدد';
                 const totalFeesDisplay = student.totalFeesOriginal || student.totalFees?.toLocaleString() || '0';
@@ -1475,6 +1647,11 @@
                 const paymentStatusClass = (student.remainingFees > 0) ? 'payment-status-none' : 'payment-status-complete';
                 
                 row.innerHTML = `
+                    <td class="py-4 px-6">
+                        <input type="checkbox" class="student-checkbox w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" 
+                               data-student-id="${studentKey}" 
+                               ${selectedStudents.has(studentKey.toString()) ? 'checked' : ''}>
+                    </td>
                     <td class="py-4 px-6 text-gray-900 dark:text-gray-100">${student.academicYear || '2024-2025'}</td>
                     <td class="py-4 px-6 text-gray-900 dark:text-gray-100 font-mono font-bold">${student.studentId}</td>
                     <td class="py-4 px-6 text-gray-900 dark:text-gray-100 font-semibold">${student.name}</td>
@@ -1491,14 +1668,124 @@
                     </td>
                     <td class="py-4 px-6">
                         <div class="flex gap-2">
-                            <button onclick="editStudent('${student.firebaseId || student.id}')" class="premium-button bg-gradient-to-r from-blue-500 to-blue-600 text-sm py-2 px-4">✏️ تعديل</button>
-                            <button onclick="deleteStudent('${student.firebaseId || student.id}')" class="premium-button bg-gradient-to-r from-red-500 to-red-600 text-sm py-2 px-4">🗑️ حذف</button>
+                            <button onclick="editStudent('${studentKey}')" class="premium-button bg-gradient-to-r from-blue-500 to-blue-600 text-sm py-2 px-4">✏️ تعديل</button>
+                            <button onclick="deleteStudent('${studentKey}')" class="premium-button bg-gradient-to-r from-red-500 to-red-600 text-sm py-2 px-4">🗑️ حذف</button>
                         </div>
                     </td>
                 `;
+                
+                // Add click event to row for selection
+                row.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox' && e.target.tagName !== 'BUTTON') {
+                        const checkbox = row.querySelector('.student-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        toggleStudentSelection(studentKey.toString(), checkbox.checked);
+                    }
+                });
+            });
+
+            // Add change event listeners to checkboxes
+            document.querySelectorAll('.student-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    const studentId = e.target.dataset.studentId;
+                    toggleStudentSelection(studentId, e.target.checked);
+                });
             });
 
             updateSearchResultsCount(filteredStudents.length);
+        }
+
+        // Enhanced selection management functions
+        function toggleStudentSelection(studentId, isSelected) {
+            if (isSelected) {
+                selectedStudents.add(studentId);
+            } else {
+                selectedStudents.delete(studentId);
+            }
+            
+            updateSelectionDisplay();
+            updateRowSelection(studentId, isSelected);
+        }
+
+        function updateRowSelection(studentId, isSelected) {
+            const row = document.querySelector(`input[data-student-id="${studentId}"]`).closest('tr');
+            if (isSelected) {
+                row.classList.add('selected');
+            } else {
+                row.classList.remove('selected');
+            }
+        }
+
+        function updateSelectionDisplay() {
+            const selectedCount = selectedStudents.size;
+            const selectedCountDisplay = document.getElementById('selectedCountDisplay');
+            const selectedCountElement = document.getElementById('selectedCount');
+            const bulkActionsBar = document.getElementById('bulkActionsBar');
+            const bulkSelectedCount = document.getElementById('bulkSelectedCount');
+
+            if (selectedCount > 0) {
+                selectedCountDisplay.style.display = 'block';
+                selectedCountElement.textContent = selectedCount;
+                bulkActionsBar.classList.add('show');
+                bulkSelectedCount.textContent = selectedCount;
+            } else {
+                selectedCountDisplay.style.display = 'none';
+                bulkActionsBar.classList.remove('show');
+            }
+
+            // Update select all checkbox
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const visibleStudents = document.querySelectorAll('.student-checkbox');
+            const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+            
+            if (visibleStudents.length > 0) {
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < visibleStudents.length;
+                selectAllCheckbox.checked = checkedCount === visibleStudents.length;
+            } else {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            }
+        }
+
+        function toggleSelectAll(selectAllCheckbox) {
+            const isChecked = selectAllCheckbox.checked;
+            const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+            
+            studentCheckboxes.forEach(checkbox => {
+                const studentId = checkbox.dataset.studentId;
+                checkbox.checked = isChecked;
+                toggleStudentSelection(studentId, isChecked);
+            });
+        }
+
+        function selectAllVisible() {
+            const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+            studentCheckboxes.forEach(checkbox => {
+                const studentId = checkbox.dataset.studentId;
+                checkbox.checked = true;
+                toggleStudentSelection(studentId, true);
+            });
+        }
+
+        function clearAllSelections() {
+            selectedStudents.clear();
+            document.querySelectorAll('.student-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.querySelectorAll('.table-row').forEach(row => {
+                row.classList.remove('selected');
+            });
+            updateSelectionDisplay();
+        }
+
+        function invertSelection() {
+            const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+            studentCheckboxes.forEach(checkbox => {
+                const studentId = checkbox.dataset.studentId;
+                checkbox.checked = !checkbox.checked;
+                toggleStudentSelection(studentId, checkbox.checked);
+            });
         }
 
         function updateFilters() {
@@ -1547,6 +1834,7 @@
 
             function filterAndRefresh() {
                 currentPage = 1;
+                clearAllSelections();
                 applyFilters();
                 renderStudentsTable();
                 renderPagination();
@@ -1573,6 +1861,7 @@
                 itemsPerPageSelect.addEventListener('change', (e) => {
                     itemsPerPage = parseInt(e.target.value);
                     currentPage = 1;
+                    clearAllSelections();
                     renderStudentsTable();
                     renderPagination();
                 });
@@ -1617,6 +1906,7 @@
             });
             
             currentPage = 1;
+            clearAllSelections();
             applyFilters();
             renderStudentsTable();
             renderPagination();
@@ -1663,6 +1953,7 @@
             if (pageNum < 1 || pageNum > totalPages) return;
             
             currentPage = pageNum;
+            clearAllSelections();
             renderStudentsTable();
             renderPagination();
         }
@@ -1677,6 +1968,310 @@
             const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
             if (currentPage < totalPages) {
                 goToPage(currentPage + 1);
+            }
+        }
+
+        // Enhanced ultra-fast delete functions
+        async function ultraFastClearAll() {
+            if (students.length === 0) {
+                showAlert('❌ لا توجد بيانات لمسحها');
+                return;
+            }
+
+            showConfirmDialog(
+                `⚡ حذف فائق السرعة!\n\nسيتم مسح جميع البيانات (${students.length} طالب) بأقصى سرعة ممكنة.\n\n🔥 هذا الإجراء لا يمكن التراجع عنه!`, 
+                async () => {
+                    await performUltraFastDelete(students);
+                }
+            );
+        }
+
+        async function ultraFastDeleteSelected() {
+            if (selectedStudents.size === 0) {
+                showAlert('❌ لم تقم بتحديد أي طلاب للحذف');
+                return;
+            }
+
+            const selectedStudentsData = students.filter(s => 
+                selectedStudents.has((s.firebaseId || s.id).toString())
+            );
+
+            showConfirmDialog(
+                `⚡ حذف فائق السرعة!\n\nسيتم حذف ${selectedStudentsData.length} طالب محدد بأقصى سرعة.\n\n🔥 هذا الإجراء لا يمكن التراجع عنه!`, 
+                async () => {
+                    await performUltraFastDelete(selectedStudentsData);
+                    clearAllSelections();
+                }
+            );
+        }
+
+        async function performUltraFastDelete(studentsToDelete) {
+            const modal = document.getElementById('deleteProgressModal');
+            const progressFill = document.getElementById('deleteProgressFill');
+            const currentChunkSpan = document.getElementById('deleteCurrentChunk');
+            const totalChunksSpan = document.getElementById('deleteTotalChunks');
+            const deletedCountSpan = document.getElementById('deletedCount');
+            const speedSpan = document.getElementById('deleteSpeed');
+            const statusText = document.getElementById('deleteStatusText');
+
+            modal.classList.remove('hidden');
+
+            const startTime = Date.now();
+            let deletedCount = 0;
+            let firebaseDeletedCount = 0;
+            let firebaseErrors = 0;
+
+            try {
+                // Prepare Firebase IDs for batch delete
+                const firebaseIds = studentsToDelete
+                    .filter(s => s.firebaseId)
+                    .map(s => s.firebaseId);
+
+                // Split into chunks for ultra-fast processing
+                const chunkSize = 500; // Large chunks for speed
+                const chunks = [];
+                
+                // Create chunks for Firebase IDs
+                for (let i = 0; i < firebaseIds.length; i += chunkSize) {
+                    chunks.push(firebaseIds.slice(i, i + chunkSize));
+                }
+
+                totalChunksSpan.textContent = chunks.length || 1;
+
+                // Ultra-fast Firebase deletion with batch operations
+                if (chunks.length > 0) {
+                    statusText.textContent = '🔥 حذف فائق السرعة من Firebase...';
+                    
+                    for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+                        const chunkStartTime = Date.now();
+                        const chunk = chunks[chunkIndex];
+                        
+                        currentChunkSpan.textContent = chunkIndex + 1;
+                        const progress = ((chunkIndex + 1) / chunks.length) * 50; // 50% for Firebase
+                        progressFill.style.width = `${progress}%`;
+
+                        try {
+                            const batchDeleted = await deleteMultipleStudentsFromFirebase(chunk);
+                            firebaseDeletedCount += batchDeleted;
+                        } catch (error) {
+                            console.error('Batch delete error:', error);
+                            firebaseErrors += chunk.length;
+                        }
+
+                        const chunkTime = Date.now() - chunkStartTime;
+                        const deleteSpeed = Math.round((chunk.length / chunkTime) * 1000);
+                        speedSpan.textContent = `${deleteSpeed}`;
+
+                        // Ultra-fast processing - minimal delay
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+
+                // Ultra-fast local deletion (instant)
+                statusText.textContent = '⚡ حذف فوري من التخزين المحلي...';
+                progressFill.style.width = '75%';
+
+                const idsToDelete = new Set(studentsToDelete.map(s => (s.firebaseId || s.id).toString()));
+                
+                // Single operation to remove all students - ultra fast
+                students = students.filter(student => 
+                    !idsToDelete.has((student.firebaseId || student.id).toString())
+                );
+                
+                deletedCount = studentsToDelete.length;
+                deletedCountSpan.textContent = deletedCount;
+
+                // Ultra-fast save to localStorage
+                statusText.textContent = '💾 حفظ التغييرات...';
+                progressFill.style.width = '90%';
+                localStorage.setItem('studentsData', JSON.stringify(students));
+
+                // Final update
+                statusText.textContent = '✅ تم الحذف بنجاح!';
+                progressFill.style.width = '100%';
+
+                // Ultra-fast UI refresh
+                filteredStudents = [];
+                currentPage = 1;
+                
+                const currentScreen = getCurrentScreen();
+                if (currentScreen === 'studentsScreen') {
+                    loadStudentsTable();
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                modal.classList.add('hidden');
+
+                // Results summary
+                const totalTime = Date.now() - startTime;
+                const avgSpeed = Math.round((deletedCount / totalTime) * 1000);
+                
+                let message = `🎉 تم حذف ${deletedCount} طالب بنجاح في ${(totalTime/1000).toFixed(2)} ثانية!`;
+                message += `\n⚡ معدل الحذف: ${avgSpeed} طالب/ثانية`;
+                
+                if (firebaseDeletedCount > 0) {
+                    message += `\n🔥 حذف من Firebase: ${firebaseDeletedCount} طالب`;
+                }
+                if (firebaseErrors > 0) {
+                    message += `\n⚠️ تعذر حذف ${firebaseErrors} من Firebase (تم حذفها محلياً)`;
+                }
+
+                showAlert(message);
+                
+            } catch (error) {
+                console.error('Ultra-fast delete error:', error);
+                modal.classList.add('hidden');
+                showAlert('❌ حدث خطأ أثناء الحذف السريع: ' + error.message);
+            }
+        }
+
+        // Enhanced delete and edit functions
+        async function deleteStudent(id) {
+            showConfirmDialog('⚠️ هل أنت متأكد من حذف بيانات هذا الطالب؟', async () => {
+                try {
+                    const student = students.find(s => (s.firebaseId || s.id).toString() === id.toString());
+                    
+                    if (student && student.firebaseId) {
+                        await deleteStudentFromFirebase(student.firebaseId);
+                    }
+
+                    students = students.filter(s => (s.firebaseId || s.id).toString() !== id.toString());
+                    localStorage.setItem('studentsData', JSON.stringify(students));
+                    
+                    // Remove from selection if selected
+                    selectedStudents.delete(id.toString());
+                    
+                    const totalPages = Math.ceil(students.length / itemsPerPage);
+                    if (currentPage > totalPages && totalPages > 0) {
+                        currentPage = totalPages;
+                    }
+                    
+                    const currentScreen = getCurrentScreen();
+                    if (currentScreen === 'studentsScreen') {
+                        loadStudentsTable();
+                    } else if (currentScreen === 'searchScreen') {
+                        setupQuickSearch();
+                    }
+                    
+                    showAlert('✅ تم حذف بيانات الطالب بنجاح');
+                } catch (error) {
+                    showAlert('❌ خطأ في حذف البيانات: ' + error.message);
+                }
+            });
+        }
+
+        function editStudent(id) {
+            const student = students.find(s => (s.firebaseId || s.id).toString() === id.toString());
+            if (!student) return;
+
+            // Fill form with existing data preserving original formats
+            document.getElementById('academicYear').value = student.academicYear || '2024-2025';
+            document.getElementById('studentId').value = student.studentId;
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('grade').value = student.grade;
+            document.getElementById('transport').value = student.transport || '';
+            document.getElementById('totalFees').value = student.totalFeesOriginal || student.totalFees || '';
+            document.getElementById('paidFees').value = student.paidFeesOriginal || student.paidFees || '';
+            document.getElementById('remainingFees').value = student.remainingFeesOriginal || student.remainingFees || '';
+            document.getElementById('notes').value = student.notes;
+
+            // Remove student and show add screen
+            students = students.filter(s => (s.firebaseId || s.id).toString() !== id.toString());
+            localStorage.setItem('studentsData', JSON.stringify(students));
+            showAddStudentScreen();
+        }
+
+        // Enhanced export functions
+        function exportToExcel() {
+            if (students.length === 0) {
+                showAlert('❌ لا توجد بيانات للتصدير');
+                return;
+            }
+
+            try {
+                const exportData = students.map(s => ({
+                    'العام الدراسي': s.academicYear || '2024-2025',
+                    'رقم الطالب': s.studentId || '',
+                    'اسم الطالب': s.name || '',
+                    'الصف': s.grade || '',
+                    'النقل': s.transport || 'غير محدد',
+                    'الرسوم الكلية': s.totalFeesOriginal || s.totalFees || 0,
+                    'المسدد': s.paidFeesOriginal || s.paidFees || 0,
+                    'المتبقي': s.remainingFeesOriginal || s.remainingFees || 0,
+                    'الملاحظات': s.notes || '',
+                    'تاريخ الإدخال': s.createdAt ? new Date(s.createdAt).toLocaleDateString('ar-AE') : ''
+                }));
+
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                
+                const columnWidths = [
+                    { wch: 15 }, { wch: 12 }, { wch: 25 }, { wch: 15 }, { wch: 12 },
+                    { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 15 }
+                ];
+                worksheet['!cols'] = columnWidths;
+
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Students Data Ultra');
+
+                const currentDate = new Date();
+                const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                const fileName = `Students_Ultra_${dateString}.xlsx`;
+
+                XLSX.writeFile(workbook, fileName);
+                showAlert('✅ تم تصدير البيانات بنجاح مع الحفاظ على التنسيق الأصلي');
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                showAlert('❌ حدث خطأ أثناء التصدير. يرجى المحاولة مرة أخرى.');
+            }
+        }
+
+        function exportSelected() {
+            if (selectedStudents.size === 0) {
+                showAlert('❌ لم تقم بتحديد أي طلاب للتصدير');
+                return;
+            }
+
+            try {
+                const selectedStudentsData = students.filter(s => 
+                    selectedStudents.has((s.firebaseId || s.id).toString())
+                );
+
+                const exportData = selectedStudentsData.map(s => ({
+                    'العام الدراسي': s.academicYear || '2024-2025',
+                    'رقم الطالب': s.studentId || '',
+                    'اسم الطالب': s.name || '',
+                    'الصف': s.grade || '',
+                    'النقل': s.transport || 'غير محدد',
+                    'الرسوم الكلية': s.totalFeesOriginal || s.totalFees || 0,
+                    'المسدد': s.paidFeesOriginal || s.paidFees || 0,
+                    'المتبقي': s.remainingFeesOriginal || s.remainingFees || 0,
+                    'الملاحظات': s.notes || '',
+                    'تاريخ الإدخال': s.createdAt ? new Date(s.createdAt).toLocaleDateString('ar-AE') : ''
+                }));
+
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                
+                const columnWidths = [
+                    { wch: 15 }, { wch: 12 }, { wch: 25 }, { wch: 15 }, { wch: 12 },
+                    { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 15 }
+                ];
+                worksheet['!cols'] = columnWidths;
+
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Selected Students');
+
+                const currentDate = new Date();
+                const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                const fileName = `Selected_Students_${dateString}.xlsx`;
+
+                XLSX.writeFile(workbook, fileName);
+                showAlert(`✅ تم تصدير ${selectedStudentsData.length} طالب محدد بنجاح`);
+                
+            } catch (error) {
+                console.error('Export selected error:', error);
+                showAlert('❌ حدث خطأ أثناء تصدير الطلاب المحددين.');
             }
         }
 
@@ -2054,168 +2649,6 @@
             return screens.find(screen => !document.getElementById(screen).classList.contains('hidden'));
         }
 
-        // Enhanced clear all data function
-        async function clearAllData() {
-            if (students.length === 0) {
-                showAlert('❌ لا توجد بيانات لمسحها');
-                return;
-            }
-
-            showConfirmDialog(
-                `⚠️ هل أنت متأكد من مسح جميع البيانات؟\n\nسيتم مسح ${students.length} سجل من قاعدة البيانات.\n\n🔥 هذا الإجراء لا يمكن التراجع عنه!`, 
-                async () => {
-                    try {
-                        const clearBtn = document.querySelector('[onclick="clearAllData()"]');
-                        if (clearBtn) {
-                            clearBtn.innerHTML = 'جاري المسح... <div class="loading-spinner"></div>';
-                            clearBtn.disabled = true;
-                        }
-
-                        let deletedFromFirebase = 0;
-                        let firebaseErrors = 0;
-
-                        if (db) {
-                            for (const student of students) {
-                                if (student.firebaseId) {
-                                    try {
-                                        await deleteStudentFromFirebase(student.firebaseId);
-                                        deletedFromFirebase++;
-                                    } catch (error) {
-                                        console.error('Firebase deletion error:', error);
-                                        firebaseErrors++;
-                                    }
-                                }
-                            }
-                        }
-
-                        students = [];
-                        filteredStudents = [];
-                        localStorage.removeItem('studentsData');
-                        currentPage = 1;
-                        loadStudentsTable();
-
-                        let message = `✅ تم مسح جميع البيانات بنجاح!`;
-                        if (deletedFromFirebase > 0) {
-                            message += `\n🔥 تم مسح ${deletedFromFirebase} سجل من Firebase`;
-                        }
-                        if (firebaseErrors > 0) {
-                            message += `\n⚠️ تعذر مسح ${firebaseErrors} سجل من Firebase (تم مسحها محلياً)`;
-                        }
-                        
-                        showAlert(message);
-                        
-                    } catch (error) {
-                        console.error('Error clearing data:', error);
-                        showAlert('❌ حدث خطأ أثناء مسح البيانات: ' + error.message);
-                    } finally {
-                        const clearBtn = document.querySelector('[onclick="clearAllData()"]');
-                        if (clearBtn) {
-                            clearBtn.innerHTML = '🗑️ مسح الكل';
-                            clearBtn.disabled = false;
-                        }
-                    }
-                }
-            );
-        }
-
-        // Enhanced delete and edit functions
-        async function deleteStudent(id) {
-            showConfirmDialog('⚠️ هل أنت متأكد من حذف بيانات هذا الطالب؟', async () => {
-                try {
-                    const student = students.find(s => (s.firebaseId || s.id).toString() === id.toString());
-                    
-                    if (student && student.firebaseId) {
-                        await deleteStudentFromFirebase(student.firebaseId);
-                    }
-
-                    students = students.filter(s => (s.firebaseId || s.id).toString() !== id.toString());
-                    localStorage.setItem('studentsData', JSON.stringify(students));
-                    
-                    const totalPages = Math.ceil(students.length / itemsPerPage);
-                    if (currentPage > totalPages && totalPages > 0) {
-                        currentPage = totalPages;
-                    }
-                    
-                    const currentScreen = getCurrentScreen();
-                    if (currentScreen === 'studentsScreen') {
-                        loadStudentsTable();
-                    } else if (currentScreen === 'searchScreen') {
-                        setupQuickSearch();
-                    }
-                    
-                    showAlert('✅ تم حذف بيانات الطالب بنجاح');
-                } catch (error) {
-                    showAlert('❌ خطأ في حذف البيانات: ' + error.message);
-                }
-            });
-        }
-
-        function editStudent(id) {
-            const student = students.find(s => (s.firebaseId || s.id).toString() === id.toString());
-            if (!student) return;
-
-            // Fill form with existing data preserving original formats
-            document.getElementById('academicYear').value = student.academicYear || '2024-2025';
-            document.getElementById('studentId').value = student.studentId;
-            document.getElementById('studentName').value = student.name;
-            document.getElementById('grade').value = student.grade;
-            document.getElementById('transport').value = student.transport || '';
-            document.getElementById('totalFees').value = student.totalFeesOriginal || student.totalFees || '';
-            document.getElementById('paidFees').value = student.paidFeesOriginal || student.paidFees || '';
-            document.getElementById('remainingFees').value = student.remainingFeesOriginal || student.remainingFees || '';
-            document.getElementById('notes').value = student.notes;
-
-            // Remove student and show add screen
-            students = students.filter(s => (s.firebaseId || s.id).toString() !== id.toString());
-            localStorage.setItem('studentsData', JSON.stringify(students));
-            showAddStudentScreen();
-        }
-
-        // Enhanced export function preserving original formats
-        function exportToExcel() {
-            if (students.length === 0) {
-                showAlert('❌ لا توجد بيانات للتصدير');
-                return;
-            }
-
-            try {
-                const exportData = students.map(s => ({
-                    'العام الدراسي': s.academicYear || '2024-2025',
-                    'رقم الطالب': s.studentId || '',
-                    'اسم الطالب': s.name || '',
-                    'الصف': s.grade || '',
-                    'النقل': s.transport || 'غير محدد',
-                    'الرسوم الكلية': s.totalFeesOriginal || s.totalFees || 0,
-                    'المسدد': s.paidFeesOriginal || s.paidFees || 0,
-                    'المتبقي': s.remainingFeesOriginal || s.remainingFees || 0,
-                    'الملاحظات': s.notes || '',
-                    'تاريخ الإدخال': s.createdAt ? new Date(s.createdAt).toLocaleDateString('ar-AE') : ''
-                }));
-
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                
-                const columnWidths = [
-                    { wch: 15 }, { wch: 12 }, { wch: 25 }, { wch: 15 }, { wch: 12 },
-                    { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 15 }
-                ];
-                worksheet['!cols'] = columnWidths;
-
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, 'Students Data Enhanced');
-
-                const currentDate = new Date();
-                const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
-                const fileName = `Students_Enhanced_${dateString}.xlsx`;
-
-                XLSX.writeFile(workbook, fileName);
-                showAlert('✅ تم تصدير البيانات بنجاح مع الحفاظ على التنسيق الأصلي');
-                
-            } catch (error) {
-                console.error('Export error:', error);
-                showAlert('❌ حدث خطأ أثناء التصدير. يرجى المحاولة مرة أخرى.');
-            }
-        }
-
         // Enhanced reports
         function generateReports() {
             const totalFees = students.reduce((sum, s) => sum + (s.totalFees || 0), 0);
@@ -2275,7 +2708,7 @@
                 <html lang="ar" dir="rtl">
                 <head>
                     <meta charset="UTF-8">
-                    <title>تقرير الرسوم الدراسية المتطور</title>
+                    <title>تقرير الرسوم الدراسية المتطور - نسخة فائقة السرعة</title>
                     <style>
                         body { 
                             font-family: 'Cairo', 'Tajawal', Arial, sans-serif; 
@@ -2325,13 +2758,13 @@
                         <h2 style="font-size: 2rem; margin-bottom: 15px;">📊 تقرير الرسوم الدراسية المتطور</h2>
                         <h3 style="font-size: 1.5rem; margin-bottom: 10px;">📅 للعام الدراسي 2024-2025</h3>
                         <p style="font-size: 1.2rem;">🗓️ تاريخ التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
-                        <p style="font-size: 1rem; opacity: 0.9;">🔥 نظام Firebase المتطور - النسخة الاحترافية</p>
+                        <p style="font-size: 1rem; opacity: 0.9;">⚡ نظام Firebase فائق السرعة - النسخة الاحترافية 4.0</p>
                     </div>
                     ${printContent.innerHTML}
                     <div style="margin-top: 60px; text-align: center; font-size: 14px; color: #666; padding: 30px; background: #f8f9fa; border-radius: 15px;">
                         <p style="font-size: 18px; font-weight: bold; color: #5D5CDE;">🚀 تم التطوير من قبل المهندس حسين نقد</p>
-                        <p style="margin-top: 10px;">© 2025 جميع الحقوق محفوظة للمدرسة | نسخة Firebase الاحترافية 3.0</p>
-                        <p style="margin-top: 5px; font-style: italic;">✨ نظام متطور بتقنيات حديثة لإدارة البيانات التعليمية</p>
+                        <p style="margin-top: 10px;">© 2025 جميع الحقوق محفوظة للمدرسة | نسخة Firebase فائقة السرعة 4.0</p>
+                        <p style="margin-top: 5px; font-style: italic;">⚡ نظام متطور بتقنيات حديثة مع حذف فائق السرعة</p>
                     </div>
                 </body>
                 </html>
