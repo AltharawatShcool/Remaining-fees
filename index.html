@@ -658,7 +658,7 @@
                 <form id="studentForm" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <label class="block text-gray-700 dark:text-gray-300 text-lg font-bold mb-3">العام الدراسي</label>
-                        <input type="text" id="academicYear" value="2024-2025" class="professional-input w-full">
+                        <input type="text" id="academicYear" value="2024-2025" class="professional-input w-full" placeholder="مثال: 24-25 أو 2024-2025">
                     </div>
                     
                     <div>
@@ -740,6 +740,7 @@
                     <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 p-8 rounded-3xl mb-8">
                         <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-6">
                             🔥 <strong>النظام الآن يقبل أي تنسيق للبيانات!</strong><br>
+                            ✅ العام الدراسي: يقبل أي تنسيق (20-21، 2020-2021، 24-25، إلخ...)<br>
                             ✅ النقل: يقبل أي نص (باص، بدون باص، نقل خاص، إلخ...)<br>
                             ✅ الرسوم: يحافظ على التنسيق الأصلي من الملف<br>
                             ✅ معالجة ملفات كبيرة بسرعة عالية
@@ -1154,6 +1155,23 @@
             return calculatedValue ? calculatedValue.toLocaleString() : '0';
         }
 
+        // Enhanced functions to handle flexible academic year format
+        function normalizeAcademicYear(yearValue) {
+            if (!yearValue) return '2024-2025';
+            
+            const yearStr = yearValue.toString().trim();
+            // Accept any format and preserve it (20-21, 2020-2021, 24-25, etc.)
+            return yearStr;
+        }
+
+        function normalizeTransport(transportValue) {
+            if (!transportValue) return 'غير محدد';
+            
+            const transportStr = transportValue.toString().trim();
+            // Accept any format and preserve it (باص، بدون باص، نقل خاص، etc.)
+            return transportStr;
+        }
+
         // Enhanced normalize text for better Arabic search
         function normalizeText(text) {
             if (!text) return '';
@@ -1263,13 +1281,15 @@
                 const totalFeesStr = document.getElementById('totalFees').value;
                 const paidFeesStr = document.getElementById('paidFees').value;
                 const remainingFeesStr = document.getElementById('remainingFees').value;
+                const academicYearStr = document.getElementById('academicYear').value;
+                const transportStr = document.getElementById('transport').value;
                 
                 const studentData = {
-                    academicYear: document.getElementById('academicYear').value,
+                    academicYear: normalizeAcademicYear(academicYearStr),
                     studentId: document.getElementById('studentId').value,
                     name: document.getElementById('studentName').value,
                     grade: document.getElementById('grade').value,
-                    transport: document.getElementById('transport').value || 'غير محدد',
+                    transport: normalizeTransport(transportStr),
                     totalFeesOriginal: totalFeesStr, // Keep original format
                     paidFeesOriginal: paidFeesStr, // Keep original format
                     remainingFeesOriginal: remainingFeesStr, // Keep original format
@@ -1354,16 +1374,18 @@
                 for (let index = 0; index < chunk.length; index++) {
                     const row = chunk[index];
                     try {
+                        const academicYearOriginal = row['العام الدراسي'] || row['Academic Year'] || '';
+                        const transportOriginal = row['النقل'] || row['Transport'] || '';
                         const totalFeesOriginal = row['الرسوم الكلية'] || row['Total Fees'] || '';
                         const paidFeesOriginal = row['المسدد'] || row['Paid Fees'] || '';
                         const remainingOriginal = row['المتبقي'] || row['Remaining'] || '';
                         
                         const student = {
-                            academicYear: row['العام الدراسي'] || row['Academic Year'] || '2024-2025',
+                            academicYear: normalizeAcademicYear(academicYearOriginal), // Accept any year format
                             studentId: row['رقم الطالب'] || row['Student ID'] || '',
                             name: row['اسم الطالب'] || row['Student Name'] || '',
                             grade: row['الصف'] || row['Grade'] || '',
-                            transport: row['النقل'] || row['Transport'] || 'غير محدد', // Accept any transport value
+                            transport: normalizeTransport(transportOriginal), // Accept any transport format
                             totalFeesOriginal: totalFeesOriginal, // Keep original format
                             paidFeesOriginal: paidFeesOriginal, // Keep original format
                             remainingFeesOriginal: remainingOriginal, // Keep original format
@@ -1419,7 +1441,7 @@
             
             let message = `<div class="text-green-600 font-bold text-xl">🎉 تم استيراد ${importedCount} طالب بنجاح!</div>`;
             message += `<div class="text-blue-600 mt-3 text-lg">⚡ معدل المعالجة: ${Math.round((importedCount / (Date.now() - startTime)) * 1000)} طالب/ثانية</div>`;
-            message += `<div class="text-purple-600 mt-2">✨ النظام الآن يحافظ على التنسيق الأصلي للبيانات</div>`;
+            message += `<div class="text-purple-600 mt-2">✨ النظام الآن يحافظ على التنسيق الأصلي للبيانات (العام والنقل)</div>`;
             
             if (firebaseErrors > 0) {
                 message += `<div class="text-yellow-600 mt-2">⚠️ تحذير: فشل في حفظ ${firebaseErrors} طالب في Firebase (تم الحفظ محلياً)</div>`;
