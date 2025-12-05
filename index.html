@@ -730,7 +730,7 @@
         <div id="importScreen" class="hidden">
             <div class="premium-card p-8 max-w-4xl mx-auto">
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-3xl font-bold text-gray-800 dark:text-white highlight-text">استيراد ملف Excel بمرونة عالية</h2>
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-white highlight-text">استيراد ملف Excel مع الحفاظ على التنسيق</h2>
                     <button onclick="showMainScreen()" class="premium-button">⬅️ العودة للرئيسية</button>
                 </div>
                 
@@ -739,8 +739,8 @@
                     <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">رفع ملف Excel مع معالجة ذكية</h3>
                     <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 p-8 rounded-3xl mb-8">
                         <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-6">
-                            🔥 <strong>النظام الآن يقبل أي تنسيق للبيانات!</strong><br>
-                            ✅ العام الدراسي: يقبل أي تنسيق (20-21، 2020-2021، 24-25، إلخ...)<br>
+                            🔥 <strong>النظام الآن يحافظ على تنسيق العام الدراسي تماماً!</strong><br>
+                            ✅ العام الدراسي: سيتم استخدام التنسيق الموجود في الملف (14-15، 2014-2015، 24-25، إلخ...)<br>
                             ✅ النقل: يقبل أي نص (باص، بدون باص، نقل خاص، إلخ...)<br>
                             ✅ الرسوم: يحافظ على التنسيق الأصلي من الملف<br>
                             ✅ معالجة ملفات كبيرة بسرعة عالية
@@ -748,7 +748,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                             <div class="text-right">
                                 <strong>الأعمدة المطلوبة:</strong><br>
-                                • العام الدراسي<br>
+                                • العام الدراسي (بأي تنسيق)<br>
                                 • رقم الطالب<br>
                                 • اسم الطالب<br>
                                 • الصف
@@ -1285,7 +1285,7 @@
                 const transportStr = document.getElementById('transport').value;
                 
                 const studentData = {
-                    academicYear: normalizeAcademicYear(academicYearStr),
+                    academicYear: academicYearStr || '2024-2025', // Keep exact format from input
                     studentId: document.getElementById('studentId').value,
                     name: document.getElementById('studentName').value,
                     grade: document.getElementById('grade').value,
@@ -1381,7 +1381,7 @@
                         const remainingOriginal = row['المتبقي'] || row['Remaining'] || '';
                         
                         const student = {
-                            academicYear: normalizeAcademicYear(academicYearOriginal), // Accept any year format
+                            academicYear: academicYearOriginal || '2024-2025', // Keep exact format from Excel file
                             studentId: row['رقم الطالب'] || row['Student ID'] || '',
                             name: row['اسم الطالب'] || row['Student Name'] || '',
                             grade: row['الصف'] || row['Grade'] || '',
@@ -1441,7 +1441,7 @@
             
             let message = `<div class="text-green-600 font-bold text-xl">🎉 تم استيراد ${importedCount} طالب بنجاح!</div>`;
             message += `<div class="text-blue-600 mt-3 text-lg">⚡ معدل المعالجة: ${Math.round((importedCount / (Date.now() - startTime)) * 1000)} طالب/ثانية</div>`;
-            message += `<div class="text-purple-600 mt-2">✨ النظام الآن يحافظ على التنسيق الأصلي للبيانات (العام والنقل)</div>`;
+            message += `<div class="text-purple-600 mt-2">✨ تم الحفاظ على تنسيق العام الدراسي الأصلي من الملف</div>`;
             
             if (firebaseErrors > 0) {
                 message += `<div class="text-yellow-600 mt-2">⚠️ تحذير: فشل في حفظ ${firebaseErrors} طالب في Firebase (تم الحفظ محلياً)</div>`;
@@ -1469,7 +1469,7 @@
                         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                         const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-                        statusDiv.innerHTML = `<div class="text-blue-600 text-lg font-semibold">📊 تم تحليل ${jsonData.length.toLocaleString()} سجل، بدء المعالجة الذكية...</div>`;
+                        statusDiv.innerHTML = `<div class="text-blue-600 text-lg font-semibold">📊 تم تحليل ${jsonData.length.toLocaleString()} سجل، بدء المعالجة الذكية مع الحفاظ على التنسيق...</div>`;
 
                         // Process with enhanced chunk handling
                         const result = await processExcelInChunks(jsonData, 1000);
